@@ -12,13 +12,20 @@ import java.util.concurrent.Semaphore;
  * @author Dominik Ernsberger
  *
  * 04.04.2016
+ * 
+ * updated: 20.04.2016
  */
 public class Table <Philosopher> {
 
 	private final int numberSeats;
 	private final List<Fork<Philosopher>> forkList;
 	private final List<Seat<Philosopher>> seatList;
-	private final Semaphore seatSemaphore;
+	private final List<Semaphore> semaphoreList;
+	private final int seatsPerSemaphore;
+	private final int seatsLastSemaphore;
+	
+	private final static int MAX_SEATS_SEMAPHORE = 10;
+	private final static int MIN_SEMAPHORES = 4;
 	
 	/**
 	 * Initialize the table.
@@ -28,7 +35,29 @@ public class Table <Philosopher> {
 		this.numberSeats = numberSeats;
 		forkList = Collections.synchronizedList(new ArrayList<Fork<Philosopher>>(numberSeats));
 		seatList = Collections.synchronizedList(new ArrayList<Seat<Philosopher>>(numberSeats));
-		seatSemaphore = new Semaphore(numberSeats, true);
+		int numberSemaphore = numberSeats / MAX_SEATS_SEMAPHORE;
+		
+		if(numberSemaphore < MIN_SEMAPHORES ){
+			numberSemaphore = MIN_SEMAPHORES;
+			semaphoreList = new ArrayList<Semaphore>(numberSemaphore);
+			seatsPerSemaphore = numberSeats / (numberSemaphore-1);
+			
+			for(int index = 0; index < numberSemaphore-1; index++){
+				semaphoreList.add(new Semaphore(seatsPerSemaphore));
+			}
+			seatsLastSemaphore = numberSeats % (numberSemaphore-1);
+			semaphoreList.add(new Semaphore(seatsLastSemaphore));
+		}
+		else{
+			seatsLastSemaphore = numberSeats % MAX_SEATS_SEMAPHORE;
+			seatsPerSemaphore = MAX_SEATS_SEMAPHORE;
+			semaphoreList = new ArrayList<Semaphore>(numberSemaphore);
+			
+			for(int index = 0; index < numberSemaphore; index++){
+				semaphoreList.add(new Semaphore(seatsPerSemaphore));
+			}
+			semaphoreList.add(new Semaphore(seatsLastSemaphore));
+		}
 		
 		for(int index = 0; index < numberSeats; index++){
 			seatList.add(new Seat<Philosopher>(null));
@@ -43,37 +72,49 @@ public class Table <Philosopher> {
 	 */
 	public int takeSeat(Philosopher owner){
 		int seat;
-		try{
-			seatSemaphore.acquire(); 
-			int offset = Math.abs(new Random().nextInt()% getNumberOfSeats());
-			//test for a free seat with no neighbors 
-			for(int index = 0; index < numberSeats; index++){
-				seat = getOffsetSeat(index, offset);
-				if((!seatList.get(seat).hasOwner()) && (!seatList.get((seat+1)%numberSeats).hasOwner()) && (!seatList.get((seat+numberSeats-1)%numberSeats).hasOwner())){
-					if(seatList.get(seat).sitDown(owner))
-						return seat;
-				}
-			}
-			//test for a free seat with max. one neighbor
-			for(int index = 0; index < numberSeats; index++){
-				seat = getOffsetSeat(index, offset);
-				if((!seatList.get(seat).hasOwner()) && ((!seatList.get((seat+1)%numberSeats).hasOwner()) || (!seatList.get((seat+numberSeats-1)%numberSeats).hasOwner()))){
-					if(seatList.get(seat).sitDown(owner))
-						return seat;
-				}
-			}
-			//test for a free seat
-			for(int index = 0; index < numberSeats; index++){
-				seat = getOffsetSeat(index, offset);
-				if(seatList.get(seat).sitDown(owner))
-					return seat;
-			} 
-			
-		}catch (InterruptedException e){
-			System.out.println(e.getMessage());
+		int acquiredSemaphore = -1;
+		int possibleSeats;
+		int offsetSeatSemaphore;
+		int randomSemaphore = Math.abs(new Random().nextInt()% getNumberOfSemaphores());
+		
+		for(int index = 0; index < getNumberOfSemaphores(); index++){
+			acquiredSemaphore = (index+randomSemaphore)%getNumberOfSemaphores();
+			if(semaphoreList.get(acquiredSemaphore).tryAcquire())
+				break;
+			else if(index == getNumberOfSemaphores()-1)
+				return -1;
 		}
 		
-		seatSemaphore.release();
+		if(acquiredSemaphore == getNumberOfSemaphores()-1)
+			possibleSeats = seatsLastSemaphore;
+		else
+			possibleSeats = seatsPerSemaphore;
+		
+		offsetSeatSemaphore = acquiredSemaphore * seatsPerSemaphore;
+		
+		//test for a free seat with no neighbors 
+		for(int index = 0; index < possibleSeats; index++){
+			seat = getOffsetSeat(index, offsetSeatSemaphore);
+			if((!seatList.get(seat).hasOwner()) && (!seatList.get((seat+1)%numberSeats).hasOwner()) && (!seatList.get((seat+numberSeats-1)%numberSeats).hasOwner())){
+				if(seatList.get(seat).sitDown(owner))
+					return seat;
+			}
+		}
+		//test for a free seat with max. one neighbor
+		for(int index = 0; index < possibleSeats; index++){
+			seat = getOffsetSeat(index, offsetSeatSemaphore);
+			if((!seatList.get(seat).hasOwner()) && ((!seatList.get((seat+1)%numberSeats).hasOwner()) || (!seatList.get((seat+numberSeats-1)%numberSeats).hasOwner()))){
+				if(seatList.get(seat).sitDown(owner))
+					return seat;
+			}
+		}
+		//test for a free seat
+		for(int index = 0; index < possibleSeats; index++){
+			seat = getOffsetSeat(index, offsetSeatSemaphore);
+			if(seatList.get(seat).sitDown(owner))
+				return seat;
+		}
+		
 		return -1;
 	}
 	
@@ -83,7 +124,11 @@ public class Table <Philosopher> {
 	 */
 	public void standUp(int seat){
 		seatList.get(seat).standUp();
-		seatSemaphore.release();
+		int releasedSemaphore = seat / seatsPerSemaphore;
+		if(releasedSemaphore > (getNumberOfSemaphores()-1))
+			semaphoreList.get(releasedSemaphore-1).release();
+		else
+			semaphoreList.get(releasedSemaphore).release();
 	}
 	
 	/**
@@ -110,6 +155,10 @@ public class Table <Philosopher> {
 	 */
 	public int getNumberOfSeats(){
 		return numberSeats;
+	}
+	
+	public int getNumberOfSemaphores(){
+		return semaphoreList.size();
 	}
 	
 	private int getOffsetSeat(int seat, int offset){
