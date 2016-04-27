@@ -19,13 +19,13 @@ public class Philosopher extends Thread {
 	private int currentSeat;
 	private volatile boolean continueTesting = true;
 	
-	private final static int DEFAULT_HUNGER = 30;
-	private final static int THINK_TIME = 500;
-	private final static int BANNED_TIME = 8000;
-	private final static int MAX_WAIT_FORK = 250;
-	private final static int WAIT_TIME_FORK = 300;
-	private final static int EAT_TIME = 100;
-	private final static int SLEEPING_TIME = 1000;
+	private final static int DEFAULT_HUNGER = 80;
+	private final static int THINK_TIME = 5;
+	private final static int BANNED_TIME = 25;
+	private final static int MAX_WAIT_FORK = 25;
+	private final static int WAIT_TIME_FORK = 1;
+	private final static int EAT_TIME = 1;
+	private final static int SLEEPING_TIME = 10;
 	private final static int MAX_EATEN =3;
 	
 	/**

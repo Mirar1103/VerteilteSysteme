@@ -82,7 +82,12 @@ public class Table <Philosopher> {
 			if(semaphoreList.get(acquiredSemaphore).tryAcquire())
 				break;
 			else if(index == getNumberOfSemaphores()-1)
-				return -1;
+				try {
+					semaphoreList.get(acquiredSemaphore).acquire();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		}
 		
 		if(acquiredSemaphore == getNumberOfSemaphores()-1)

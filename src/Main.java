@@ -37,7 +37,7 @@ public class Main {
 		}
 		
 		for(int index = numberPhilosopher-hungry; index < (numberPhilosopher); index++){
-			philosopher = new Philosopher(table, index, 80);
+			philosopher = new Philosopher(table, index, 100);
 			listPhilosopher.add(philosopher);
 			philosopher.start();
 		}
