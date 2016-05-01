@@ -17,7 +17,6 @@ public class Main {
 	Seat<Philosopher> seat = new Seat<Philosopher>(null);
 	static List<Philosopher> listPhilosopher;
 	static Table<Philosopher> table;
-	static Gui gui;
 	static Master master;
 	/**
 	 * @param args

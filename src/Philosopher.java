@@ -262,6 +262,10 @@ public class Philosopher extends Thread {
 		this.banned = banned;
 	}
 	
+	/**
+	 * Set the testing value for the loops to false.
+	 * @param continueTesting false for stop
+	 */
 	public void stop(boolean continueTesting){
 		this.continueTesting = continueTesting;
 	}

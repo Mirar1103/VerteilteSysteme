@@ -162,10 +162,21 @@ public class Table <Philosopher> {
 		return numberSeats;
 	}
 	
+	/**
+	 * Returns the number of Semaphores.
+	 * @return the number of semaphores
+	 */
 	public int getNumberOfSemaphores(){
 		return semaphoreList.size();
 	}
 	
+	/**
+	 * Returns a seat number.
+	 * Calculates the seat number with a given seat an and given offset.
+	 * @param seat a given seat
+	 * @param offset a given offset
+	 * @return a seat number 
+	 */
 	private int getOffsetSeat(int seat, int offset){
 		return ((seat+offset)%getNumberOfSeats());
 	}

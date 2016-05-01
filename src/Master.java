@@ -65,10 +65,18 @@ public class Master extends Thread{
 		}
 	}
 	
+	/**
+	 * Set the testing value for the loops to false.
+	 * @param continueTesting false to stop
+	 */
 	public void stop(boolean continueTesting){
 		this.continueTesting = continueTesting;
 	}
 	
+	
+	/**
+	 * Print the result of the eaten plates.
+	 */
 	public void printResult(){
 		System.out.println("---------FINISH----------");
 		for(int index = 0; index < eatCount.size(); index++){
