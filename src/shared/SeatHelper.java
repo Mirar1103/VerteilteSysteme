@@ -13,9 +13,9 @@ public class SeatHelper {
     private List<Seat> listSeats = new LinkedList<Seat>();
     private List<Fork> listForks = new LinkedList<Fork>();
 
-    public SeatHelper(Table table, String host){
+    public SeatHelper(Table table){
         this.table = table;
-        this.host = host;
+        this.host = System.getProperty("java.rmi.server.hostname");
     }
 
     public synchronized void addSeat(int numberOfSeats) throws RemoteException {

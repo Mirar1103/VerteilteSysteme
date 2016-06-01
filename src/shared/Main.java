@@ -27,6 +27,7 @@ public class Main {
 		String input;
 		Table table = null;
 		PhilosopherHelper phil = null;
+		SeatHelper seat = null;
 		System.out.println("Welcome to the shared dining philosophers! Possible commands are:");
 		System.out.println("create Table, create/remove Philosopher, create/remove Seat, quit");
 		
@@ -59,6 +60,28 @@ public class Main {
 					System.out.println("Number of Philosopher to remove: ");
 					numberOfPhil = Integer.parseInt(br.readLine());
 					phil.removePhilosopher(numberOfPhil);
+				}
+			}
+			//create seats
+			else if(input.equals("create Seat")){
+				if(table == null)
+					table = searchTable(br);
+				if(seat==null)
+					seat = new SeatHelper(table);
+				int numberOfseats;
+				System.out.println("Number of Seats to add: ");
+				numberOfseats = Integer.parseInt(br.readLine());
+				seat.addSeat(numberOfseats);
+			}
+			//remove Seats
+			else if(input.equals("remove Seat")){
+				if(seat == null)
+					System.out.println("No Seats to remove on this Server.");
+				else{
+					int numberOfSeat;
+					System.out.println("Number of Seats to remove: ");
+					numberOfSeat = Integer.parseInt(br.readLine());
+					seat.removeSeat(numberOfSeat);
 				}
 			}
 		}
