@@ -3,6 +3,8 @@
  */
 package shared;
 
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -10,7 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * 27.05.2016
  */
-public class SeatImpl implements Seat{
+public class SeatImpl extends UnicastRemoteObject implements Seat{
 	/**
 	 * Philosopher who owns this seat
 	 */
@@ -25,7 +27,8 @@ public class SeatImpl implements Seat{
 	 * Initialize a seat.
 	 * @param owner
 	 */
-	public SeatImpl(Philosopher owner){
+	public SeatImpl(Philosopher owner) throws RemoteException {
+		super();
 		this.owner = owner;
 	}
 	

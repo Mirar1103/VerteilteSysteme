@@ -3,6 +3,8 @@
  */
 package shared;
 
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -10,7 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * 27.05.2016
  */
-public class ForkImpl implements Fork{
+public class ForkImpl extends UnicastRemoteObject implements Fork{
 	/**
 	 * Philosopher who owns this fork
 	 */
@@ -25,7 +27,7 @@ public class ForkImpl implements Fork{
 	 * Initialize a fork.
 	 * @param owner possible owner or null
 	 */
-	public ForkImpl(Philosopher owner){
+	public ForkImpl(Philosopher owner) throws RemoteException {
 		this.owner = owner;
 	}
 	

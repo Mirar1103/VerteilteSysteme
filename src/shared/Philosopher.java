@@ -3,6 +3,7 @@
  */
 package shared;
 
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
@@ -10,8 +11,8 @@ import java.rmi.RemoteException;
  *
  * 29.05.2016
  */
-public interface Philosopher {
+public interface Philosopher extends Remote {
 
-	public void stop();
+	public void stop() throws RemoteException;
 	public void setTable(Table table) throws RemoteException; 
 }

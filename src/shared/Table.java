@@ -3,6 +3,7 @@
  */
 package shared;
 
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
@@ -10,14 +11,14 @@ import java.rmi.RemoteException;
  *
  * 29.05.2016
  */
-public interface Table {
+public interface Table extends Remote{
 
-	public int takeSeat(Philosopher owner);
-	public void standUp(int seat);
-	public boolean pickUpFork(int fork, Philosopher owner);
-	public void dropFork(int fork);
-	public int getNumberOfSeats();
-	public int getNumberOfSemaphores();
+	public int takeSeat(Philosopher owner) throws RemoteException;
+	public void standUp(int seat)throws RemoteException;
+	public boolean pickUpFork(int fork, Philosopher owner)throws RemoteException;
+	public void dropFork(int fork)throws RemoteException;
+	public int getNumberOfSeats()throws RemoteException;
+	public int getNumberOfSemaphores()throws RemoteException;
 	
 	public void registerNewForkAndSeat(Fork fork, Seat seat, String host) throws RemoteException;
 	public void removeForkAndSeat(Fork fork, Seat seat, String host) throws RemoteException;

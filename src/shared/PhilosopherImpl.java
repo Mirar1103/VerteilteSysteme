@@ -44,17 +44,16 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 	
 	/**
 	 * Initialize a single Philosopher.
-	 * @param table the table
 	 * @param philosopherID the ID of the philosopher
 	 * @throws RemoteException 
 	 */
 	public PhilosopherImpl(int philosopherID) throws RemoteException{
 		this(philosopherID, DEFAULT_HUNGER);
 	}
+
 	
 	/**
 	 * Initialize a single Philosopher.
-	 * @param table the table
 	 * @param philosopherID the ID of the philosopher
 	 * @param hunger the value of the hunger percentage
 	 * @throws RemoteException 
@@ -67,7 +66,11 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 		currentSeat = -1;
 		totalEaten = 0;
 	}
-	
+
+	public void setIdAndHunger(int Id){
+		this.philosopherID = Id;
+		this.hunger = DEFAULT_HUNGER;
+	}
 	/**
 	 * This is the main function for the philosopher.
 	 * 
@@ -92,7 +95,11 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 			
 			if(random < hunger){
 				System.out.println("Philosopher " + philosopherID + " gets hungry and will try to eat.");
-				eat();
+				try {
+					eat();
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
 				if((totalEaten % MAX_EATEN) == 0)
 					goToBed();
 			}
@@ -136,7 +143,7 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 	 * he will wait a specified time and will try it after this again.
 	 * If the philosopher was able to eat he will drop both forks and leave the seat. 
 	 */
-	private boolean eat(){
+	private boolean eat() throws RemoteException {
 		//first check if the philosopher is banned
 		if(banned){
 			try {
@@ -151,7 +158,7 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 		
 		//waiting for a seat to sit down
 		System.out.println("Philosopher " + philosopherID + "is waiting for a seat.");
-		currentSeat = table.takeSeat(this);
+		currentSeat =  table.takeSeat(this);
 		int trySitDown=0;
 		while (currentSeat == -1 && trySitDown < MAX_WAIT_FORK){
 			try {
@@ -203,7 +210,7 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 	 * @param rightFork
 	 * @return true if the philosopher get both forks
 	 */
-	private boolean getBothForks(int leftFork, int rightFork){
+	private boolean getBothForks(int leftFork, int rightFork) throws RemoteException {
 		int waitCounter = 0;
 		
 			//randomly take one of both forks
@@ -252,7 +259,7 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 	 * @param gotFork if true, wait and try again later
 	 * @return true if the philosopher got the fork
 	 */
-	private boolean getSingleFork(int fork, String forkPosition, boolean gotFork){
+	private boolean getSingleFork(int fork, String forkPosition, boolean gotFork) throws RemoteException {
 		
 		if(table.pickUpFork(fork, this)){
 			System.out.println("Philosopher " + philosopherID + "picked up " + forkPosition + " fork.");
@@ -289,7 +296,6 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 	
 	/**
 	 * Set the testing value for the loops to false.
-	 * @param continueTesting false for stop
 	 */
 	public void stop(){
 		continueTesting = false;

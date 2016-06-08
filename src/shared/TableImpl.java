@@ -18,31 +18,37 @@ import java.util.concurrent.Semaphore;
  * 27.05.2016
  */
 public class TableImpl extends UnicastRemoteObject implements Table{
-	private final int numberSeats;
-	private final List<Fork> forkList;
-	private final List<Seat> seatList;
-	private final List<Semaphore> semaphoreList;
-	private final int seatsPerSemaphore;
-	private final int seatsLastSemaphore;
+	private int numberSeats;
+	private List<Fork> forkList;
+	private List<Seat> seatList;
+	private List<String> seatHosts;
+	private List<Semaphore> semaphoreList;
+	private int seatsPerSemaphore;
+	private int seatsLastSemaphore;
 	
 	private final static int MAX_SEATS_SEMAPHORE = 10;
 	private final static int MIN_SEMAPHORES = 4;
 	
 	/**
 	 * Initialize the table.
-	 * @param numberSeats number of the seats
+	 *
 	 */
-	public TableImpl(int numberSeats){
+	public TableImpl() throws RemoteException {
+		forkList = Collections.synchronizedList(new ArrayList<Fork>());
+		seatList = Collections.synchronizedList(new ArrayList<Seat>());
+		seatHosts = Collections.synchronizedList(new ArrayList<String>());
+
+	}
+
+	public void setSeats(int numberSeats) throws RemoteException {
 		this.numberSeats = numberSeats;
-		forkList = Collections.synchronizedList(new ArrayList<Fork>(numberSeats));
-		seatList = Collections.synchronizedList(new ArrayList<Seat>(numberSeats));
 		int numberSemaphore = numberSeats / MAX_SEATS_SEMAPHORE;
-		
+
 		if(numberSemaphore < MIN_SEMAPHORES ){
 			numberSemaphore = MIN_SEMAPHORES;
 			semaphoreList = new ArrayList<Semaphore>(numberSemaphore);
 			seatsPerSemaphore = numberSeats / (numberSemaphore-1);
-			
+
 			for(int index = 0; index < numberSemaphore-1; index++){
 				semaphoreList.add(new Semaphore(seatsPerSemaphore));
 			}
@@ -53,17 +59,17 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 			seatsLastSemaphore = numberSeats % MAX_SEATS_SEMAPHORE;
 			seatsPerSemaphore = MAX_SEATS_SEMAPHORE;
 			semaphoreList = new ArrayList<Semaphore>(numberSemaphore);
-			
+
 			for(int index = 0; index < numberSemaphore; index++){
 				semaphoreList.add(new Semaphore(seatsPerSemaphore));
 			}
 			semaphoreList.add(new Semaphore(seatsLastSemaphore));
 		}
-		
-		for(int index = 0; index < numberSeats; index++){
+
+		/*for(int index = 0; index < numberSeats; index++){
 			seatList.add(new SeatImpl(null));
 			forkList.add(new ForkImpl(null));
-		}
+		}*/
 	}
 	
 	/**
@@ -71,7 +77,7 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 	 * @param owner the Philosopher who wants to sit down
 	 * @return the seat number or -1 if no seat was taken
 	 */
-	public int takeSeat(Philosopher owner){
+	public int takeSeat(Philosopher owner) throws RemoteException {
 		int seat;
 		int acquiredSemaphore = -1;
 		int possibleSeats;
@@ -128,7 +134,7 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 	 * Stands up and release the seat.
 	 * @param seat the seat number
 	 */
-	public void standUp(int seat){
+	public void standUp(int seat) throws RemoteException {
 		seatList.get(seat).standUp();
 		int releasedSemaphore = seat / seatsPerSemaphore;
 		if(releasedSemaphore > (getNumberOfSemaphores()-1))
@@ -143,7 +149,7 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 	 * @param owner the philosopher which wants to pick up the fork
 	 * @return true if the philosopher gots the fork
 	 */
-	public boolean pickUpFork(int fork, Philosopher owner){
+	public boolean pickUpFork(int fork, Philosopher owner) throws RemoteException {
 		return forkList.get(fork).pickUpFork(owner);
 	}
 	
@@ -151,7 +157,7 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 	 * Drops a single fork back on the table.
 	 * @param fork the fork number
 	 */
-	public void dropFork(int fork){
+	public void dropFork(int fork) throws RemoteException {
 		forkList.get(fork).drop();
 	}
 	
@@ -187,6 +193,11 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 	 */
 	@Override
 	public void registerNewForkAndSeat(Fork fork, Seat seat, String host) throws RemoteException {
+		forkList.add(fork);
+		seatList.add(seat);
+		seatHosts.add(host);
+		setSeats(numberSeats+1);
+		System.out.println("seat should have been added"+ seatList.toString());
 		// TODO Auto-generated method stub
 		
 	}
@@ -196,7 +207,11 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 	 */
 	@Override
 	public void removeForkAndSeat(Fork fork, Seat seat, String host) throws RemoteException {
+		forkList.remove(fork);
+		seatList.remove(seat);
+		seatHosts.remove(host);
+		setSeats(numberSeats-1);
 		// TODO Auto-generated method stub
-		
+		System.out.println("seat should have been removed");
 	}
 }

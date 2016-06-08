@@ -26,13 +26,14 @@ public class PhilosopherHelper {
 		
 		for(int i = 0; i < numberOfPhil; i++){
 			PhilosopherImpl phil = new PhilosopherImpl();
+			phil.setIdAndHunger(i);
 			phil.setTable(table);
 			new Thread(phil).start();
 			listPhilosophers.add(phil);
 		}
 	}
 	
-	public synchronized void removePhilosopher(int numberOfPhil){
+	public synchronized void removePhilosopher(int numberOfPhil) throws RemoteException {
 		if(numberOfPhil < 1 || numberOfPhil > listPhilosophers.size())
 			throw new IllegalArgumentException("Wrong number of Philosopher for removing.");
 		
