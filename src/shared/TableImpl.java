@@ -197,7 +197,7 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 		seatList.add(seat);
 		seatHosts.add(host);
 		setSeats(numberSeats+1);
-		System.out.println("seat should have been added"+ seatList.toString());
+		System.out.println("seat should was added");
 		// TODO Auto-generated method stub
 		
 	}
@@ -212,6 +212,6 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 		seatHosts.remove(host);
 		setSeats(numberSeats-1);
 		// TODO Auto-generated method stub
-		System.out.println("seat should have been removed");
+		System.out.println("seat should was removed");
 	}
 }

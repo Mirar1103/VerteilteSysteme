@@ -84,6 +84,7 @@ public class Main {
 					seat.removeSeat(numberOfSeat);
 				}
 			}
+			System.out.println("create Table, create/remove Philosopher, create/remove Seat, quit");
 		}
 		br.close();
 
