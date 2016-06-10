@@ -167,7 +167,7 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 	 * @throws RemoteException
      */
 	private boolean pickUpOtherTablesFork( Philosopher owner) throws RemoteException {
-		return nextTable.pickUpFork(1, owner);
+		return nextTable.pickUpFork(0, owner);
 	}
 
 	/**

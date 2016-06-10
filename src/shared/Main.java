@@ -26,9 +26,20 @@ public class Main {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		String input;
 		Table table = null;
+		Master master = null;
 		PhilosopherHelper phil = null;
 		SeatHelper seat = null;
 		System.out.println("Welcome to the shared dining philosophers! Possible commands are:");
+		System.out.println("create new Master? (J/N)");
+		if(br.readLine().equalsIgnoreCase("J")){
+			System.out.println("Which Port?");
+			String port;
+			port = br.readLine();
+			MasterMain.main(port);
+			master = (Master) LocateRegistry.getRegistry(Integer.parseInt(port)).lookup("master");
+		}else{
+			master = selectMaster(br);
+		}
 		System.out.println("create Table, create/remove Philosopher, create/remove Seat, quit");
 		
 		while(!(input = br.readLine()).equals("quit")){
@@ -39,6 +50,7 @@ public class Main {
 				port = br.readLine();
 				TableMain.main(port);
 				table = (Table) LocateRegistry.getRegistry(Integer.parseInt(port)).lookup("table");
+				master.registerTable(table);
 			}
 			//create Philosopher
 			else if(input.equals("create Philosopher")){
@@ -103,6 +115,21 @@ public class Main {
 		System.out.println("Port: ");
 		String port = br.readLine();
 		return (Table) Naming.lookup("//"+host+":"+port+"/table");
+	}
+
+	/**
+	 * @param br
+	 * @return
+	 * @throws IOException
+	 * @throws NotBoundException
+	 */
+	private static Master selectMaster(BufferedReader br) throws IOException, NotBoundException {
+		System.out.println("Please Specify Master");
+		System.out.println("Host Address: ");
+		String host = br.readLine();
+		System.out.println("Port: ");
+		String port = br.readLine();
+		return (Master) Naming.lookup("//"+host+":"+port+"/master");
 	}
 
 }
