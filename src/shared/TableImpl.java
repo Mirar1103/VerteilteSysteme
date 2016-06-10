@@ -25,6 +25,7 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 	private List<Semaphore> semaphoreList;
 	private int seatsPerSemaphore;
 	private int seatsLastSemaphore;
+	private Table nextTable = this;
 	
 	private final static int MAX_SEATS_SEMAPHORE = 10;
 	private final static int MIN_SEMAPHORES = 4;
@@ -150,9 +151,42 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 	 * @return true if the philosopher gots the fork
 	 */
 	public boolean pickUpFork(int fork, Philosopher owner) throws RemoteException {
-		return forkList.get(fork).pickUpFork(owner);
+		if(fork<forkList.size()) {
+			return forkList.get(fork).pickUpFork(owner);
+		}
+		else
+		{
+			return pickUpOtherTablesFork(owner);
+		}
 	}
-	
+
+	/**
+	 * tries to take the first fork of the next table
+	 * @param owner the philosopher taking the fork
+	 * @return true if philosopher got the fork
+	 * @throws RemoteException
+     */
+	private boolean pickUpOtherTablesFork( Philosopher owner) throws RemoteException {
+		return nextTable.pickUpFork(1, owner);
+	}
+
+	/**
+	 * allows to set the next Table when a new table is added.
+	 * @param table the new following table
+	 * @throws RemoteException
+     */
+	public void setNextTable(Table table) throws RemoteException{
+		nextTable = table;
+	}
+
+	/**
+	 * returns the Table after this one.
+	 * @return
+     */
+	public Table getNextTable(){
+		return nextTable;
+	}
+
 	/**
 	 * Drops a single fork back on the table.
 	 * @param fork the fork number
@@ -197,7 +231,7 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 		seatList.add(seat);
 		seatHosts.add(host);
 		setSeats(numberSeats+1);
-		System.out.println("seat should was added");
+		System.out.println("seat was added");
 		// TODO Auto-generated method stub
 		
 	}
@@ -212,6 +246,6 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 		seatHosts.remove(host);
 		setSeats(numberSeats-1);
 		// TODO Auto-generated method stub
-		System.out.println("seat should was removed");
+		System.out.println("seat was removed");
 	}
 }

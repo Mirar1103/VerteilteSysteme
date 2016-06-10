@@ -19,7 +19,7 @@ public interface Table extends Remote{
 	public void dropFork(int fork)throws RemoteException;
 	public int getNumberOfSeats()throws RemoteException;
 	public int getNumberOfSemaphores()throws RemoteException;
-	
+	public Table getNextTable() throws RemoteException;
 	public void registerNewForkAndSeat(Fork fork, Seat seat, String host) throws RemoteException;
 	public void removeForkAndSeat(Fork fork, Seat seat, String host) throws RemoteException;
 }

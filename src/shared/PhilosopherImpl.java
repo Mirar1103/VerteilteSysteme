@@ -169,6 +169,7 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 			}
 			currentSeat = table.takeSeat(this);
 			trySitDown++;
+			table=table.getNextTable();
 		}
 		if(currentSeat == -1)
 			return false;
@@ -177,7 +178,7 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 		
 		//pick up both forks
 		int leftFork = currentSeat;
-		int rightFork = (currentSeat+1)%table.getNumberOfSeats();
+		int rightFork = currentSeat+1;//)%table.getNumberOfSeats();
 		
 		if(getBothForks(leftFork, rightFork)){
 			try {
