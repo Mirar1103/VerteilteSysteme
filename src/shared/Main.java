@@ -45,12 +45,18 @@ public class Main {
 		while(!(input = br.readLine()).equals("quit")){
 			//create Table
 			if(input.equals("create Table")){
+				if(table==null){
 				String port;
 				System.out.println("Which Port?");
 				port = br.readLine();
 				TableMain.main(port);
 				table = (Table) LocateRegistry.getRegistry(Integer.parseInt(port)).lookup("table");
 				master.registerTable(table);
+				}
+				else
+				{
+					System.out.println("Invlaid! Table already set");
+				}
 			}
 			//create Philosopher
 			else if(input.equals("create Philosopher")){
