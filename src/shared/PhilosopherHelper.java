@@ -25,8 +25,7 @@ public class PhilosopherHelper {
 			throw new IllegalArgumentException("Number has to be greater than zero.");
 		
 		for(int i = 0; i < numberOfPhil; i++){
-			PhilosopherImpl phil = new PhilosopherImpl(i);
-			phil.setIdAndHunger(i);
+			PhilosopherImpl phil = new PhilosopherImpl(-1);
 			phil.setTable(table);
 			new Thread(phil).start();
 			listPhilosophers.add(phil);
@@ -39,7 +38,7 @@ public class PhilosopherHelper {
 		
 		for(int i = 0; i < numberOfPhil; i++){
 			Philosopher phil = listPhilosophers.remove(0);
-			phil.stop();
+			phil.kill();
 		}
 	}
 }

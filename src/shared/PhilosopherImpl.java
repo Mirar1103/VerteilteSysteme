@@ -4,35 +4,42 @@
 package shared;
 
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 /**
  * @author Dominik Ernsberger
  *
  * 27.05.2016
  */
-public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Philosopher{
-	
+public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
+	private static final long serialVersionUID = -1794431714881772273L;
+	private final static Logger LOG = Logger.getLogger(Philosopher.class.getName());
+	static AtomicInteger nextId = new AtomicInteger();
 	private Table table;
 	private int totalEaten;
 	private int hunger;
 	private int philosopherID;
 	private boolean banned;
 	private int currentSeat;
-	private volatile boolean continueTesting = true;
 	
 	private final static int DEFAULT_HUNGER = 80;
-	private final static int THINK_TIME = 5;
-	private final static int BANNED_TIME = 25;
+	private final static int THINK_TIME = 3000;
+	private final static int BANNED_TIME = 10000;
 	private final static int MAX_WAIT_FORK = 25;
 	private final static int WAIT_TIME_FORK = 1;
-	private final static int EAT_TIME = 1;
-	private final static int SLEEPING_TIME = 10;
+	private final static int EAT_TIME = 2000;
+	private final static int SLEEPING_TIME = 10000;
 	private final static int MAX_EATEN =3;
 	
 	private final String MONITOR = new String();
+	
 	
 	/**
 	 * @throws RemoteException
@@ -45,32 +52,33 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 	/**
 	 * Initialize a single Philosopher.
 	 * @param philosopherID the ID of the philosopher
-	 * @throws RemoteException 
-	 */
-	public PhilosopherImpl(int philosopherID) throws RemoteException{
-		this(philosopherID, DEFAULT_HUNGER);
-	}
-
-	
-	/**
-	 * Initialize a single Philosopher.
-	 * @param philosopherID the ID of the philosopher
 	 * @param hunger the value of the hunger percentage
 	 * @throws RemoteException 
 	 */
-	public PhilosopherImpl(int philosopherID, int hunger) throws RemoteException{
+	public PhilosopherImpl(int hunger) throws RemoteException{
 		super();
-		this.philosopherID = philosopherID;
-		this.hunger = hunger;
+		this.philosopherID = nextId.incrementAndGet();
+		if(hunger == -1)
+			this.hunger = DEFAULT_HUNGER;
+		else
+			this.hunger = hunger;
 		banned = false;
 		currentSeat = -1;
 		totalEaten = 0;
+		
+		LOG.info("Philosopher #" + this.philosopherID + " created");
+	}
+	
+	public PhilosopherImpl(Table table, int hunger, int philosopherID, int totalEaten, boolean banned) throws RemoteException{
+		super();
+		this.table = table;
+		this.totalEaten = totalEaten;
+		this.hunger = hunger;
+		this.philosopherID = philosopherID;
+		this.banned = banned;
+		currentSeat = -1;
 	}
 
-	public void setIdAndHunger(int Id){
-		this.philosopherID = Id;
-		this.hunger = DEFAULT_HUNGER;
-	}
 	/**
 	 * This is the main function for the philosopher.
 	 * 
@@ -78,33 +86,30 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 	 */
 	@Override
 	public void run(){
-		
-		while(continueTesting){
-			while(table == null){
-				System.out.println("Philosopher " + philosopherID + " waiting for table.");
-				try {
-					MONITOR.wait();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+		try{
+			while(!Thread.currentThread().isInterrupted()){
+				while(table == null){
+					//System.out.println("Philosopher " + philosopherID + " waiting for table.");
+					LOG.fine("Philosopher #" + this.philosopherID + " waiting for a table");
+						MONITOR.wait();
 				}
-			}
-			
-			think();
-			int random  = Math.abs(new Random().nextInt()% 100);
-			
-			if(random < hunger){
-				System.out.println("Philosopher " + philosopherID + " gets hungry and will try to eat.");
-				try {
-					eat();
-				} catch (RemoteException e) {
-					e.printStackTrace();
-				}
-				if((totalEaten % MAX_EATEN) == 0)
-					goToBed();
-			}
-			else
+				
 				think();
+				int random  = Math.abs(new Random().nextInt()% 100);
+				if(random < hunger){
+					//System.out.println("Philosopher " + philosopherID + " gets hungry and will try to eat.");
+					LOG.info("Philosopher #" + this.philosopherID + " gets hungry and will try to eat");
+						while(!eat()){
+							table.movePhilosopher(this);
+						}
+					if((totalEaten % MAX_EATEN) == 0)
+						goToBed();
+				}
+				else
+					think();
+			}
+		} catch(InterruptedException | RemoteException e){
+			e.printStackTrace();
 		}
 	}
 	
@@ -115,7 +120,8 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 	 */
 	private void think(){
 		try {
-			System.out.println("Philosopher " + philosopherID + " is thinking.");
+			//System.out.println("Philosopher " + philosopherID + " is thinking.");
+			LOG.info("Philosopher #" + this.philosopherID + " is thinking");
 			Thread.sleep(THINK_TIME);
 		} catch (InterruptedException e) {
 			System.out.println(e.getMessage());
@@ -129,7 +135,8 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 	 */
 	private void goToBed(){
 		try {
-			System.out.println("Philosopher " + philosopherID + " is going to bed.");
+			//System.out.println("Philosopher " + philosopherID + " is going to bed.");
+			LOG.info("Philosopher #" + this.philosopherID + " is going to bed");
 			Thread.sleep(SLEEPING_TIME);
 		} catch (InterruptedException e) {
 			System.out.println(e.getMessage());
@@ -147,7 +154,8 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 		//first check if the philosopher is banned
 		if(banned){
 			try {
-				System.out.println("Philosopher " + philosopherID + "is banned from eating.");
+				//System.out.println("Philosopher " + philosopherID + "is banned from eating.");
+				LOG.info("Philosopher #" + this.philosopherID + " is banned from eating");
 				Thread.sleep(BANNED_TIME);
 				banned = false;
 			} catch (InterruptedException e) {
@@ -157,24 +165,15 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 		}
 		
 		//waiting for a seat to sit down
-		System.out.println("Philosopher " + philosopherID + "is waiting for a seat.");
-		currentSeat =  table.takeSeat(this);
-		int trySitDown=0;
-		while (currentSeat == -1 && trySitDown < MAX_WAIT_FORK){
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				System.out.println(e.getMessage());
-			}
-			currentSeat = table.takeSeat(this);
-			trySitDown++;
-			table=table.getNextTable();
-		}
-		if(currentSeat == -1)
+		//System.out.println("Philosopher " + philosopherID + "is waiting for a seat.");
+		LOG.info("Philosopher #" + this.philosopherID + " is waiting for a seat");
+		currentSeat = table.takeSeat(this);
+		
+		if (currentSeat == -1)
 			return false;
 		
-		System.out.println("Philosopher " + philosopherID + "sits down on seat " + currentSeat + ".");
+		//System.out.println("Philosopher " + philosopherID + "sits down on seat " + currentSeat + "on Table " + table.getID());
+		LOG.info("Philosopher #" + this.philosopherID + " sits down on seat #" + currentSeat + " on Table #" + table.getID());
 		
 		//pick up both forks
 		int leftFork = currentSeat;
@@ -191,15 +190,18 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 			//drop both forks
 			table.dropFork(leftFork);
 			table.dropFork(rightFork);
-			System.out.println("Philosopher " + philosopherID + "dropped both forks.");
+			//System.out.println("Philosopher " + philosopherID + "dropped both forks.");
+			LOG.info("Philosopher #" + this.philosopherID + " dropped both forks");
 		}
 		else{
-			System.out.println("Philosopher " + philosopherID + "is giving up. No forks available.");
+			//System.out.println("Philosopher " + philosopherID + "is giving up. No forks available.");
+			LOG.info("Philosopher #" + this.philosopherID + " is giving up. No forks available");
 		}
 		
 		//standing up and leaving the dining room
 		table.standUp(currentSeat);
-		System.out.println("Philosopher " + philosopherID + " is leaving.");
+		//System.out.println("Philosopher " + philosopherID + " is leaving.");
+		LOG.info("Philosopher #" + this.philosopherID + " is leaving");
 		return true;
 	}
 	
@@ -231,7 +233,8 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 				if(gotFork){
 					//Drop fork to prevent a deadlock
 					table.dropFork(leftFork);
-					System.out.println("Philosopher " + philosopherID + "dropped left fork.");
+					//System.out.println("Philosopher " + philosopherID + "dropped left fork.");
+					LOG.info("Philosopher #" + this.philosopherID + " dropped left fork");
 				}
 			} 
 			else {
@@ -247,7 +250,8 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 				if(gotFork){
 					//Drop fork to prevent a deadlock
 					table.dropFork(rightFork);
-					System.out.println("Philosopher " + philosopherID + "dropped right fork.");
+					//System.out.println("Philosopher " + philosopherID + "dropped right fork.");
+					LOG.info("Philosopher #" + this.philosopherID + " dropped right fork");
 				}
 			}
 		return false;
@@ -263,14 +267,16 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 	private boolean getSingleFork(int fork, String forkPosition, boolean gotFork) throws RemoteException {
 		
 		if(table.pickUpFork(fork, this)){
-			System.out.println("Philosopher " + philosopherID + "picked up " + forkPosition + " fork.");
+			//System.out.println("Philosopher " + philosopherID + "picked up " + forkPosition + " fork.");
+			LOG.info("Philosopher #" + this.philosopherID + " picked up " + forkPosition + " fork");
 			return true;
 		}
 		
 		//no fork, wait and try again later
 		try {
 			if(!gotFork)
-				System.out.println("Philosopher " + philosopherID + " is waiting for " + forkPosition + " fork.");
+				//System.out.println("Philosopher " + philosopherID + " is waiting for " + forkPosition + " fork.");
+				LOG.info("Philosopher #" + this.philosopherID + " is waiting for " + forkPosition + " fork");
 			Thread.sleep(WAIT_TIME_FORK);
 		} catch (InterruptedException e) {
 			System.out.println(e.getMessage());
@@ -283,7 +289,7 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 	 * Returns the total eaten rounds.
 	 * @return total eaten rounds.
 	 */
-	public int getTotalEatenRounds(){
+	public int getTotalEatenRounds()throws RemoteException{
 		return totalEaten;
 	}
 	
@@ -291,15 +297,12 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 	 * Set the flag to ban this philosopher for the next meal.
 	 * @param banned true, if the philosopher has to be banned
 	 */
-	public void setBanned(boolean banned){
+	public void setBanned(boolean banned)throws RemoteException{
 		this.banned = banned;
 	}
 	
-	/**
-	 * Set the testing value for the loops to false.
-	 */
-	public void stop(){
-		continueTesting = false;
+	public boolean getBanned()throws RemoteException{
+		return banned;
 	}
 
 	/* (non-Javadoc)
@@ -311,6 +314,22 @@ public class PhilosopherImpl extends UnicastRemoteObject implements Runnable, Ph
 		synchronized (MONITOR) {
 			MONITOR.notify();
 		}
+	}
+	
+	public int getID()throws RemoteException{
+		return this.philosopherID;
+	}
+	
+	public Thread getThread()throws RemoteException{
+		return Thread.currentThread();
+	}
+	
+	public void kill()throws RemoteException{
+		Thread.currentThread().interrupt();
+	}
+	
+	public int getHunger()throws RemoteException{
+		return hunger;
 	}
 
 }

@@ -3,6 +3,7 @@
  */
 package shared;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.locks.ReentrantLock;
@@ -12,7 +13,8 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * 27.05.2016
  */
-public class SeatImpl extends UnicastRemoteObject implements Seat{
+public class SeatImpl extends UnicastRemoteObject implements Seat, Serializable{
+	private static final long serialVersionUID = 1L;
 	/**
 	 * Philosopher who owns this seat
 	 */

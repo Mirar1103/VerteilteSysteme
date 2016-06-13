@@ -13,6 +13,12 @@ import java.rmi.RemoteException;
  */
 public interface Philosopher extends Remote {
 
-	public void stop() throws RemoteException;
-	public void setTable(Table table) throws RemoteException; 
+	public void setTable(Table table) throws RemoteException;
+	
+	public int getTotalEatenRounds() throws RemoteException;
+	public int getID() throws RemoteException;
+	public Thread getThread()throws RemoteException;
+	public void kill()throws RemoteException;
+	public int getHunger()throws RemoteException;
+	public boolean getBanned()throws RemoteException; 
 }

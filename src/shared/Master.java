@@ -8,7 +8,11 @@ import java.rmi.RemoteException;
  */
 public interface Master extends Remote{
 
-    public void registerTable(Table table) throws RemoteException;
+	/**
+	 * @param table
+	 * @throws RemoteException 
+	 */
+	void registerTable(Table table) throws RemoteException;
 
 
 }

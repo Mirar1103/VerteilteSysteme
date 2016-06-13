@@ -28,6 +28,7 @@ public class Main {
 		Table table = null;
 		Master master = null;
 		PhilosopherHelper phil = null;
+		TableMain tableMain = new TableMain();
 		SeatHelper seat = null;
 		System.out.println("Welcome to the shared dining philosophers! Possible commands are:");
 		System.out.println("create new Master? (J/N)");
@@ -48,9 +49,9 @@ public class Main {
 				String port;
 				System.out.println("Which Port?");
 				port = br.readLine();
-				TableMain.main(port);
+				tableMain.registerTableToMaster(master, Integer.parseInt(port));
 				table = (Table) LocateRegistry.getRegistry(Integer.parseInt(port)).lookup("table");
-				master.registerTable(table);
+				
 			}
 			//create Philosopher
 			else if(input.equals("create Philosopher")){

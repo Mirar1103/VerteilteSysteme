@@ -23,4 +23,9 @@ public interface Table extends Remote{
 	public void setNextTable(Table table) throws RemoteException;
 	public void registerNewForkAndSeat(Fork fork, Seat seat, String host) throws RemoteException;
 	public void removeForkAndSeat(Fork fork, Seat seat, String host) throws RemoteException;
+	public int getID() throws RemoteException;
+	public void setID(int id) throws RemoteException;
+
+	public void movePhilosopher(Philosopher phil) throws RemoteException;
+	public void recreatePhilosopher(int hunger, int id, int totalEatenRounds, boolean banned) throws RemoteException;
 }

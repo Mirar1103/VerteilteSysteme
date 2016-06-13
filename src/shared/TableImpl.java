@@ -4,6 +4,7 @@
 package shared;
 
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
@@ -11,24 +12,30 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
+import java.util.logging.Logger;
 
 /**
- * @author Dominik
+ * @author Dominik Ernsberger
  *
  * 27.05.2016
  */
-public class TableImpl extends UnicastRemoteObject implements Table{
+public class TableImpl extends UnicastRemoteObject implements Table, Serializable{
+	
+	private static final long serialVersionUID = 1L;
+	private final static Logger LOG = Logger.getLogger(TableImpl.class.getName());
 	private int numberSeats;
 	private List<Fork> forkList;
 	private List<Seat> seatList;
 	private List<String> seatHosts;
 	private List<Semaphore> semaphoreList;
+	private List<Thread> philosophers = new ArrayList<Thread>();
 	private int seatsPerSemaphore;
 	private int seatsLastSemaphore;
 	private Table nextTable = this;
+	private int id = -1;
 	
 	private final static int MAX_SEATS_SEMAPHORE = 10;
-	private final static int MIN_SEMAPHORES = 4;
+	private final static int MIN_SEMAPHORES = 1;
 	
 	/**
 	 * Initialize the table.
@@ -38,9 +45,13 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 		forkList = Collections.synchronizedList(new ArrayList<Fork>());
 		seatList = Collections.synchronizedList(new ArrayList<Seat>());
 		seatHosts = Collections.synchronizedList(new ArrayList<String>());
-
 	}
 
+	/**
+	 * Calculates the number of Semaphores and the seats.
+	 * @param numberSeats the number of seats for this table
+	 * @throws RemoteException
+	 */
 	public void setSeats(int numberSeats) throws RemoteException {
 		this.numberSeats = numberSeats;
 		int numberSemaphore = numberSeats / MAX_SEATS_SEMAPHORE;
@@ -48,13 +59,12 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 		if(numberSemaphore < MIN_SEMAPHORES ){
 			numberSemaphore = MIN_SEMAPHORES;
 			semaphoreList = new ArrayList<Semaphore>(numberSemaphore);
-			seatsPerSemaphore = numberSeats / (numberSemaphore-1);
+			seatsPerSemaphore = numberSeats / (numberSemaphore);
 
-			for(int index = 0; index < numberSemaphore-1; index++){
+			for(int index = 0; index < numberSemaphore; index++){
 				semaphoreList.add(new Semaphore(seatsPerSemaphore));
 			}
-			seatsLastSemaphore = numberSeats % (numberSemaphore-1);
-			semaphoreList.add(new Semaphore(seatsLastSemaphore));
+			seatsLastSemaphore = numberSeats;
 		}
 		else{
 			seatsLastSemaphore = numberSeats % MAX_SEATS_SEMAPHORE;
@@ -66,11 +76,6 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 			}
 			semaphoreList.add(new Semaphore(seatsLastSemaphore));
 		}
-
-		/*for(int index = 0; index < numberSeats; index++){
-			seatList.add(new SeatImpl(null));
-			forkList.add(new ForkImpl(null));
-		}*/
 	}
 	
 	/**
@@ -79,55 +84,54 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 	 * @return the seat number or -1 if no seat was taken
 	 */
 	public int takeSeat(Philosopher owner) throws RemoteException {
+		boolean foundFreeSemaphore = false;
 		int seat;
 		int acquiredSemaphore = -1;
 		int possibleSeats;
 		int offsetSeatSemaphore;
 		int randomSemaphore = Math.abs(new Random().nextInt()% getNumberOfSemaphores());
 		
+		if(!philosophers.contains(owner.getThread()))
+			philosophers.add(owner.getThread());
+		
 		for(int index = 0; index < getNumberOfSemaphores(); index++){
 			acquiredSemaphore = (index+randomSemaphore)%getNumberOfSemaphores();
-			if(semaphoreList.get(acquiredSemaphore).tryAcquire())
+			if(semaphoreList.get(acquiredSemaphore).tryAcquire()){
+				foundFreeSemaphore = true;
 				break;
-			else if(index == getNumberOfSemaphores()-1)
-				try {
-					semaphoreList.get(acquiredSemaphore).acquire();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+			}
+		}
+		if(foundFreeSemaphore){
+			if(acquiredSemaphore == getNumberOfSemaphores()-1)
+				possibleSeats = seatsLastSemaphore;
+			else
+				possibleSeats = seatsPerSemaphore;
+			
+			offsetSeatSemaphore = acquiredSemaphore * seatsPerSemaphore;
+			
+			//test for a free seat with no neighbors 
+			for(int index = 0; index < possibleSeats; index++){
+				seat = getOffsetSeat(index, offsetSeatSemaphore);
+				if((!seatList.get(seat).hasOwner()) && (!seatList.get((seat+1)%numberSeats).hasOwner()) && (!seatList.get((seat+numberSeats-1)%numberSeats).hasOwner())){
+					if(seatList.get(seat).sitDown(owner))
+						return seat;
 				}
-		}
-		
-		if(acquiredSemaphore == getNumberOfSemaphores()-1)
-			possibleSeats = seatsLastSemaphore;
-		else
-			possibleSeats = seatsPerSemaphore;
-		
-		offsetSeatSemaphore = acquiredSemaphore * seatsPerSemaphore;
-		
-		//test for a free seat with no neighbors 
-		for(int index = 0; index < possibleSeats; index++){
-			seat = getOffsetSeat(index, offsetSeatSemaphore);
-			if((!seatList.get(seat).hasOwner()) && (!seatList.get((seat+1)%numberSeats).hasOwner()) && (!seatList.get((seat+numberSeats-1)%numberSeats).hasOwner())){
+			}
+			//test for a free seat with max. one neighbor
+			for(int index = 0; index < possibleSeats; index++){
+				seat = getOffsetSeat(index, offsetSeatSemaphore);
+				if((!seatList.get(seat).hasOwner()) && ((!seatList.get((seat+1)%numberSeats).hasOwner()) || (!seatList.get((seat+numberSeats-1)%numberSeats).hasOwner()))){
+					if(seatList.get(seat).sitDown(owner))
+						return seat;
+				}
+			}
+			//test for a free seat
+			for(int index = 0; index < possibleSeats; index++){
+				seat = getOffsetSeat(index, offsetSeatSemaphore);
 				if(seatList.get(seat).sitDown(owner))
 					return seat;
 			}
 		}
-		//test for a free seat with max. one neighbor
-		for(int index = 0; index < possibleSeats; index++){
-			seat = getOffsetSeat(index, offsetSeatSemaphore);
-			if((!seatList.get(seat).hasOwner()) && ((!seatList.get((seat+1)%numberSeats).hasOwner()) || (!seatList.get((seat+numberSeats-1)%numberSeats).hasOwner()))){
-				if(seatList.get(seat).sitDown(owner))
-					return seat;
-			}
-		}
-		//test for a free seat
-		for(int index = 0; index < possibleSeats; index++){
-			seat = getOffsetSeat(index, offsetSeatSemaphore);
-			if(seatList.get(seat).sitDown(owner))
-				return seat;
-		}
-		
 		return -1;
 	}
 	
@@ -151,23 +155,13 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 	 * @return true if the philosopher gots the fork
 	 */
 	public boolean pickUpFork(int fork, Philosopher owner) throws RemoteException {
-		if(fork<forkList.size()) {
+		if(fork < forkList.size()) {
 			return forkList.get(fork).pickUpFork(owner);
 		}
 		else
 		{
-			return pickUpOtherTablesFork(owner);
+			return getNextTable().pickUpFork(0, owner);
 		}
-	}
-
-	/**
-	 * tries to take the first fork of the next table
-	 * @param owner the philosopher taking the fork
-	 * @return true if philosopher got the fork
-	 * @throws RemoteException
-     */
-	private boolean pickUpOtherTablesFork( Philosopher owner) throws RemoteException {
-		return nextTable.pickUpFork(0, owner);
 	}
 
 	/**
@@ -181,7 +175,7 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 
 	/**
 	 * returns the Table after this one.
-	 * @return
+	 * @return the next table
      */
 	public Table getNextTable(){
 		return nextTable;
@@ -190,9 +184,13 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 	/**
 	 * Drops a single fork back on the table.
 	 * @param fork the fork number
+	 * @throws RemoteException
 	 */
 	public void dropFork(int fork) throws RemoteException {
-		forkList.get(fork).drop();
+		if(fork < forkList.size())
+			forkList.get(fork).drop();
+		else
+			getNextTable().dropFork(0);
 	}
 	
 	/**
@@ -222,30 +220,104 @@ public class TableImpl extends UnicastRemoteObject implements Table{
 		return ((seat+offset)%getNumberOfSeats());
 	}
 
-	/* (non-Javadoc)
-	 * @see shared.Table#registerNewForkAndSeat(shared.Fork, shared.Seat, java.lang.String)
+	/**
+	 * Register a new Fork and a new Seat to the Table.
+	 * @param fork new fork
+	 * @param seat new seat
+	 * @param host
+	 * @throws RemoteException
 	 */
 	@Override
 	public void registerNewForkAndSeat(Fork fork, Seat seat, String host) throws RemoteException {
 		forkList.add(fork);
 		seatList.add(seat);
 		seatHosts.add(host);
-		setSeats(numberSeats+1);
-		System.out.println("seat was added");
-		// TODO Auto-generated method stub
+		
+		if(philosophers.size() > 0){
+			Semaphore tmp = semaphoreList.get(semaphoreList.size()-1);
+			tmp.release();
+		}
+		else
+			setSeats(numberSeats+1);
+			
+		//System.out.println("seat was added");
+		LOG.info("seat was added");
 		
 	}
 
-	/* (non-Javadoc)
-	 * @see shared.Table#removeForkAndSeat(shared.Fork, shared.Seat, java.lang.String)
+	/**
+	 * Remove a given fork and seat.
+	 * @param fork the given fork
+	 * @param seat the given seat
+	 * @param host
+	 * @throws RemoteException
 	 */
 	@Override
 	public void removeForkAndSeat(Fork fork, Seat seat, String host) throws RemoteException {
 		forkList.remove(fork);
 		seatList.remove(seat);
 		seatHosts.remove(host);
-		setSeats(numberSeats-1);
+		
+		if(philosophers.size() > 0){
+			Semaphore tmp = semaphoreList.get(semaphoreList.size()-1);
+			//TODO - decrease Semaphore
+		}
+		else
+			setSeats(numberSeats+1);
 		// TODO Auto-generated method stub
 		System.out.println("seat was removed");
+	}
+	
+	/**
+	 * Return the ID of the Table part.
+	 * @return the ID of the table
+	 * @throws RemoteException
+	 */
+	public int getID() throws RemoteException{
+		return id;
+	}
+	
+	/**
+	 * Set the ID of the Table.
+	 * Only possible once.
+	 * @param id the ID
+	 * @throws RemoteException
+	 */
+	public void setID(int id) throws RemoteException{
+		if(this.id == -1)
+			this.id = id;
+	}
+	
+	/**
+	 * Moves a Philosopher Thread to another table.
+	 * Kills the current Thread and call the function on the next table to recreate the given thread.
+	 * It recreates it with the hunger, ID, totalMeals and the banned status.
+	 * @param phil the given Philosopher
+	 * @throws RemoteException
+	 */
+	public void movePhilosopher(Philosopher phil) throws RemoteException {
+		//System.out.println("Moving philosopher "+phil.getID());
+		LOG.info("Moving Philosopher #" + phil.getID() + " to next table");
+		nextTable.recreatePhilosopher(phil.getHunger(), phil.getID(), phil.getTotalEatenRounds(), phil.getBanned());
+		philosophers.remove(phil.getThread());
+		phil.kill();
+		
+		
+	}
+	
+	/**
+	 * Recreates a Philosopher Thread on the current Table.
+	 * Starts a new Thread with the old values like hunger, ID, totalMeals and the banned status of an moving Philosopher.
+	 * @param hunger the hunger value
+	 * @param philID the ID of the philosopher
+	 * @param meals the total number of meals of this phil
+	 * @param banned the banned status 
+	 */
+	public void recreatePhilosopher(int hunger, int philID, int meals, boolean banned) throws RemoteException {
+		Thread phil = new Thread(new PhilosopherImpl(this, hunger, philID, meals, banned));
+		philosophers.add(phil);
+		phil.start();
+		//System.out.println("TablePart #" + this.id + " received an existing philosopher " + philID);
+		LOG.info("TablePart #" + this.id + " received an existing philosopher " + philID);
 	}
 }
