@@ -39,7 +39,12 @@ public class PhilosopherHelper {
 		
 		for(int i = 0; i < numberOfPhil; i++){
 			Philosopher phil = listPhilosophers.remove(0);
-			phil.kill();
+			try {
+				phil.kill();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 }

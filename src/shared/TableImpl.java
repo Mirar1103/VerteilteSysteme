@@ -312,8 +312,10 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	 * It recreates it with the hunger, ID, totalMeals and the banned status.
 	 * @param phil the given Philosopher
 	 * @throws RemoteException
+	 * @throws InterruptedException 
 	 */
-	public void movePhilosopher(Philosopher phil) throws RemoteException {
+	public void movePhilosopher(Philosopher phil) throws RemoteException, InterruptedException {
+		System.out.println("Moving philosopher "+phil.getID());
 		if(showOutput) {
 			System.out.println("Moving philosopher "+phil.getID());
 		}
@@ -321,12 +323,9 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		int philID = phil.getID();
 		int meals = phil.getTotalEatenRounds();
 		boolean banned = phil.getBanned();
-		philosophers.remove(phil.getThread());
-		phil.kill();
 		nextTable.recreatePhilosopher(hunger, philID, meals, banned);
-		
-		
-		
+		philosophers.remove(phil.getThread());
+		phil.kill();		
 	}
 	
 	/**

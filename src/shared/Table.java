@@ -26,7 +26,7 @@ public interface Table extends Remote{
 	public int getID() throws RemoteException;
 	public void setID(int id) throws RemoteException;
 
-	public void movePhilosopher(Philosopher phil) throws RemoteException;
+	public void movePhilosopher(Philosopher phil) throws RemoteException, InterruptedException;
 	public void recreatePhilosopher(int hunger, int id, int totalEatenRounds, boolean banned) throws RemoteException;
 	public void setShowOutput(boolean isWanted) throws RemoteException;
 }
