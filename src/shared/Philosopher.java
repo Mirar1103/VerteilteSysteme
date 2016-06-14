@@ -20,5 +20,6 @@ public interface Philosopher extends Remote {
 	public Thread getThread()throws RemoteException;
 	public void kill()throws RemoteException;
 	public int getHunger()throws RemoteException;
-	public boolean getBanned()throws RemoteException; 
+	public boolean getBanned()throws RemoteException;
+	public void setShowOutput(boolean isWanted) throws RemoteException;
 }
