@@ -71,14 +71,13 @@ public class Main {
 			}
 			//remove Philosopher
 			else if(input.equalsIgnoreCase("remove Philosopher")){
-				if(phil == null)
-					System.out.println("No Philosophers to remove on this Server.");
-				else{
-					int numberOfPhil;
-					System.out.println("Number of Philosopher to remove: ");
-					numberOfPhil = Integer.parseInt(br.readLine());
-					phil.removePhilosopher(numberOfPhil);
-				}
+				if(table == null)
+					table = searchTable(br);
+				
+				int numberOfPhil;
+				System.out.println("Number of Philosopher to remove: ");
+				numberOfPhil = Integer.parseInt(br.readLine());
+				phil.removePhilosopher(numberOfPhil);
 			}
 			//create seats
 			else if(input.equalsIgnoreCase("create Seat")){
@@ -93,14 +92,14 @@ public class Main {
 			}
 			//remove Seats
 			else if(input.equalsIgnoreCase("remove Seat")){
-				if(seat == null)
-					System.out.println("No Seats to remove on this Server.");
-				else{
-					int numberOfSeat;
-					System.out.println("Number of Seats to remove: ");
-					numberOfSeat = Integer.parseInt(br.readLine());
-					seat.removeSeat(numberOfSeat);
-				}
+				if(table == null)
+					table = searchTable(br);
+				if(seat==null)
+					seat = new SeatHelper(table);
+				int numberOfSeat;
+				System.out.println("Number of Seats to remove: ");
+				numberOfSeat = Integer.parseInt(br.readLine());
+				seat.removeSeat(numberOfSeat);
 			}
 			//set Debugging
 			else if(input.equalsIgnoreCase("set Debugging")){

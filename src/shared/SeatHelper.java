@@ -9,7 +9,6 @@ import java.util.List;
  */
 public class SeatHelper {
     private final Table table;
-    private int createdSeats = 0;
 
     public SeatHelper(Table table){
         this.table = table;
@@ -23,17 +22,15 @@ public class SeatHelper {
             SeatImpl seat = new SeatImpl(null);
             ForkImpl fork = new ForkImpl(null);
             table.registerNewForkAndSeat(fork, seat);
-            createdSeats++;
         }
     }
 
     public synchronized void removeSeat(int numberOfSeats) throws RemoteException {
-        if(numberOfSeats < 1 || numberOfSeats > createdSeats)
+        if(numberOfSeats < 1)
             throw new IllegalArgumentException("Wrong number of Seats for removing.");
 
         for(int i = 0; i < numberOfSeats; i++){
             table.removeForkAndSeat();
-            createdSeats--;
         }
     }
 }
