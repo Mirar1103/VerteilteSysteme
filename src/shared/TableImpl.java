@@ -22,7 +22,6 @@ import java.util.logging.Logger;
 public class TableImpl extends UnicastRemoteObject implements Table, Serializable{
 	
 	private static final long serialVersionUID = 1L;
-	private final static Logger LOG = Logger.getLogger(TableImpl.class.getName());
 	private int numberSeats;
 	private List<Fork> forkList;
 	private List<Seat> seatList;
@@ -240,8 +239,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		else
 			setSeats(numberSeats+1);
 			
-		//System.out.println("seat was added");
-		LOG.info("seat was added");
+		System.out.println("seat was added");
 		
 	}
 
@@ -296,11 +294,15 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	 * @throws RemoteException
 	 */
 	public void movePhilosopher(Philosopher phil) throws RemoteException {
-		//System.out.println("Moving philosopher "+phil.getID());
-		LOG.info("Moving Philosopher #" + phil.getID() + " to next table");
-		nextTable.recreatePhilosopher(phil.getHunger(), phil.getID(), phil.getTotalEatenRounds(), phil.getBanned());
+		System.out.println("Moving philosopher "+phil.getID());
+		int hunger = phil.getHunger();
+		int philID = phil.getID();
+		int meals = phil.getTotalEatenRounds();
+		boolean banned = phil.getBanned();
 		philosophers.remove(phil.getThread());
 		phil.kill();
+		nextTable.recreatePhilosopher(hunger, philID, meals, banned);
+		
 		
 		
 	}
@@ -317,7 +319,6 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		Thread phil = new Thread(new PhilosopherImpl(this, hunger, philID, meals, banned));
 		philosophers.add(phil);
 		phil.start();
-		//System.out.println("TablePart #" + this.id + " received an existing philosopher " + philID);
-		LOG.info("TablePart #" + this.id + " received an existing philosopher " + philID);
+		System.out.println("TablePart #" + this.id + " received an existing philosopher " + philID);
 	}
 }
