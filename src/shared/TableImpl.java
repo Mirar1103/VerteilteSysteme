@@ -32,6 +32,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	private int seatsLastSemaphore;
 	private Table nextTable = this;
 	private int id = -1;
+	private boolean showOutput;
 	
 	private final static int MAX_SEATS_SEMAPHORE = 10;
 	private final static int MIN_SEMAPHORES = 1;
@@ -296,6 +297,9 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	 */
 	public void movePhilosopher(Philosopher phil) throws RemoteException, InterruptedException {
 		System.out.println("Moving philosopher "+phil.getID());
+		if(showOutput) {
+			System.out.println("Moving philosopher "+phil.getID());
+		}
 		int hunger = phil.getHunger();
 		int philID = phil.getID();
 		int meals = phil.getTotalEatenRounds();
@@ -317,6 +321,12 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		Thread phil = new Thread(new PhilosopherImpl(this, hunger, philID, meals, banned));
 		philosophers.add(phil);
 		phil.start();
-		System.out.println("TablePart #" + this.id + " received an existing philosopher " + philID);
+		if(showOutput) {
+			System.out.println("TablePart #" + this.id + " received an existing philosopher " + philID);
+		}
+	}
+
+	public void setShowOutput(boolean isWanted)throws RemoteException{
+		showOutput = isWanted;
 	}
 }

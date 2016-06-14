@@ -27,6 +27,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	private int philosopherID;
 	private boolean banned;
 	private int currentSeat;
+	private boolean showOutput;
 	
 	private final static int DEFAULT_HUNGER = 80;
 	private final static int THINK_TIME = 3000;
@@ -50,7 +51,6 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	
 	/**
 	 * Initialize a single Philosopher.
-	 * @param philosopherID the ID of the philosopher
 	 * @param hunger the value of the hunger percentage
 	 * @throws RemoteException 
 	 */
@@ -87,17 +87,20 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 		try{
 			while(!Thread.currentThread().isInterrupted()){
 				while(table == null){
-					System.out.println("Philosopher " + philosopherID + " waiting for table.");
+					if(showOutput) {
+						System.out.println("Philosopher " + philosopherID + " waiting for table.");
+					}
 						MONITOR.wait();
 				}
 				
 				think();
 				int random  = Math.abs(new Random().nextInt()% 100);
 				if(random < hunger){
-					System.out.println("Philosopher " + philosopherID + " gets hungry and will try to eat.");
-					if(!eat())
+					if(!eat()){
+						if(showOutput) 
+							System.out.println("Philosopher " + philosopherID + " gets hungry and will try to eat.");
 						table.movePhilosopher(this);
-					else{
+					}else{
 						if((totalEaten % MAX_EATEN) == 0)
 						goToBed();
 					}
@@ -120,7 +123,9 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	 */
 	private void think(){
 		try {
-			System.out.println("Philosopher " + philosopherID + " is thinking.");
+			if(showOutput) {
+				System.out.println("Philosopher " + philosopherID + " is thinking.");
+			}
 			Thread.sleep(THINK_TIME);
 		} catch (InterruptedException e) {
 			System.out.println(e.getMessage());
@@ -134,7 +139,9 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	 */
 	private void goToBed(){
 		try {
-			System.out.println("Philosopher " + philosopherID + " is going to bed.");
+			if(showOutput) {
+				System.out.println("Philosopher " + philosopherID + " is going to bed.");
+			}
 			Thread.sleep(SLEEPING_TIME);
 		} catch (InterruptedException e) {
 			System.out.println(e.getMessage());
@@ -152,7 +159,9 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 		//first check if the philosopher is banned
 		if(banned){
 			try {
-				System.out.println("Philosopher " + philosopherID + "is banned from eating.");
+				if(showOutput) {
+					System.out.println("Philosopher " + philosopherID + "is banned from eating.");
+				}
 				Thread.sleep(BANNED_TIME);
 				banned = false;
 			} catch (InterruptedException e) {
@@ -162,13 +171,17 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 		}
 		
 		//waiting for a seat to sit down
-		System.out.println("Philosopher " + philosopherID + "is waiting for a seat.");
+		if(showOutput) {
+			System.out.println("Philosopher " + philosopherID + "is waiting for a seat.");
+		}
 		currentSeat = table.takeSeat(this);
 		
 		if (currentSeat == -1)
 			return false;
-		
-		System.out.println("Philosopher " + philosopherID + "sits down on seat " + currentSeat + "on Table " + table.getID());
+
+		if(showOutput) {
+			System.out.println("Philosopher " + philosopherID + "sits down on seat " + currentSeat + "on Table " + table.getID());
+		}
 		
 		//pick up both forks
 		int leftFork = currentSeat;
@@ -177,7 +190,9 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 		if(getBothForks(leftFork, rightFork)){
 			try {
 				totalEaten++;
-				System.out.println("Philosopher " + philosopherID + "is eating.");
+				if(showOutput) {
+					System.out.println("Philosopher " + philosopherID + "is eating.");
+				}
 				Thread.sleep(EAT_TIME);
 			} catch (InterruptedException e) {
 				System.out.println(e.getMessage());
@@ -185,15 +200,21 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 			//drop both forks
 			table.dropFork(leftFork);
 			table.dropFork(rightFork);
-			System.out.println("Philosopher " + philosopherID + "dropped both forks.");
+			if(showOutput) {
+				System.out.println("Philosopher " + philosopherID + "dropped both forks.");
+			}
 		}
 		else{
-			System.out.println("Philosopher " + philosopherID + "is giving up. No forks available.");
+			if(showOutput) {
+				System.out.println("Philosopher " + philosopherID + "is giving up. No forks available.");
+			}
 		}
 		
 		//standing up and leaving the dining room
 		table.standUp(currentSeat);
-		System.out.println("Philosopher " + philosopherID + " is leaving.");
+		if(showOutput) {
+			System.out.println("Philosopher " + philosopherID + " is leaving.");
+		}
 		return true;
 	}
 	
@@ -225,7 +246,9 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 				if(gotFork){
 					//Drop fork to prevent a deadlock
 					table.dropFork(leftFork);
-					System.out.println("Philosopher " + philosopherID + "dropped left fork.");
+					if(showOutput) {
+						System.out.println("Philosopher " + philosopherID + "dropped left fork.");
+					}
 				}
 			} 
 			else {
@@ -241,7 +264,9 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 				if(gotFork){
 					//Drop fork to prevent a deadlock
 					table.dropFork(rightFork);
-					System.out.println("Philosopher " + philosopherID + "dropped right fork.");
+					if(showOutput) {
+						System.out.println("Philosopher " + philosopherID + "dropped right fork.");
+					}
 				}
 			}
 		return false;
@@ -257,14 +282,18 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	private boolean getSingleFork(int fork, String forkPosition, boolean gotFork) throws RemoteException {
 		
 		if(table.pickUpFork(fork, this)){
-			System.out.println("Philosopher " + philosopherID + "picked up " + forkPosition + " fork.");
+			if(showOutput) {
+				System.out.println("Philosopher " + philosopherID + "picked up " + forkPosition + " fork.");
+			}
 			return true;
 		}
 		
 		//no fork, wait and try again later
 		try {
 			if(!gotFork)
-				System.out.println("Philosopher " + philosopherID + " is waiting for " + forkPosition + " fork.");
+				if(showOutput) {
+					System.out.println("Philosopher " + philosopherID + " is waiting for " + forkPosition + " fork.");
+				}
 			Thread.sleep(WAIT_TIME_FORK);
 		} catch (InterruptedException e) {
 			System.out.println(e.getMessage());
@@ -318,6 +347,9 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	
 	public int getHunger()throws RemoteException{
 		return hunger;
+	}
+	public void setShowOutput(boolean isWanted) throws RemoteException{
+		showOutput = isWanted;
 	}
 
 }

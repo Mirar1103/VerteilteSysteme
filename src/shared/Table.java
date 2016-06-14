@@ -28,4 +28,5 @@ public interface Table extends Remote{
 
 	public void movePhilosopher(Philosopher phil) throws RemoteException, InterruptedException;
 	public void recreatePhilosopher(int hunger, int id, int totalEatenRounds, boolean banned) throws RemoteException;
+	public void setShowOutput(boolean isWanted) throws RemoteException;
 }

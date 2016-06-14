@@ -18,7 +18,7 @@ import java.rmi.server.UnicastRemoteObject;
  */
 public class TableMain {
 	
-	public void registerTableToMaster(Master master, int port) throws RemoteException, UnknownHostException{
+	public void registerTableToMaster(Master master, int port, boolean debugging) throws RemoteException, UnknownHostException{
 		final InetAddress me = InetAddress.getLocalHost();
 	    final String hostAddress = me.getHostAddress();
 		System.setProperty("java.rmi.server.hostname", hostAddress);
@@ -27,6 +27,7 @@ public class TableMain {
 		System.out.println("Registry start after error");
 		TableImpl table = new TableImpl();
 		table.setID(me.hashCode());
+		table.setShowOutput(debugging);
 		master.registerTable(table);
 		String objName = "table";
 		Table tableStub = (Table) table;
