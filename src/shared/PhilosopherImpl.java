@@ -95,17 +95,22 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 				int random  = Math.abs(new Random().nextInt()% 100);
 				if(random < hunger){
 					System.out.println("Philosopher " + philosopherID + " gets hungry and will try to eat.");
+					if(!eat())
 						table.movePhilosopher(this);
-					if((totalEaten % MAX_EATEN) == 0)
+					else{
+						if((totalEaten % MAX_EATEN) == 0)
 						goToBed();
+					}
 				}
 				else
 					think();
 			}
-		} catch(InterruptedException | RemoteException e){
+		} catch(InterruptedException e){
+			Thread.currentThread().interrupt();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("END THREAD!!!!!");
 	}
 	
 	/**
@@ -307,8 +312,8 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 		return Thread.currentThread();
 	}
 	
-	public void kill()throws RemoteException{
-		Thread.currentThread().interrupt();
+	public void kill()throws RemoteException, InterruptedException{
+		throw new InterruptedException("Kill this Philosopher");
 	}
 	
 	public int getHunger()throws RemoteException{
