@@ -103,7 +103,7 @@ public class Main {
 				}
 			}
 			//set Debugging
-			else if(input.equalsIgnoreCase("set Debuging")){
+			else if(input.equalsIgnoreCase("set Debugging")){
 					int newDebug;
 					System.out.println("1==true; 0==false");
 					newDebug = Integer.parseInt(br.readLine());
