@@ -16,7 +16,6 @@ import java.rmi.registry.LocateRegistry;
  * 29.05.2016
  */
 public class Main {
-
 	/**
 	 * @param args
 	 * @throws IOException 
@@ -25,12 +24,18 @@ public class Main {
 	public static void main(String[] args) throws IOException, NotBoundException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		String input;
+		boolean debugging=false;
 		Table table = null;
 		Master master = null;
 		PhilosopherHelper phil = null;
 		TableMain tableMain = new TableMain();
 		SeatHelper seat = null;
 		System.out.println("Welcome to the shared dining philosophers! Possible commands are:");
+		System.out.println("debuggin on?(J/N)");
+		if(br.readLine().equalsIgnoreCase("J")) {
+			debugging=true;
+		}
+
 		System.out.println("create new Master? (J/N)");
 		if(br.readLine().equalsIgnoreCase("J")){
 			System.out.println("Which Port?");
@@ -41,20 +46,20 @@ public class Main {
 		}else{
 			master = selectMaster(br);
 		}
-		System.out.println("create Table, create/remove Philosopher, create/remove Seat, quit");
+		System.out.println("create Table, create/remove Philosopher, create/remove Seat, set Debugging, quit");
 		
 		while(!(input = br.readLine()).equals("quit")){
 			//create Table
-			if(input.equals("create Table")){
+			if(input.equalsIgnoreCase("create Table")){
 				String port;
 				System.out.println("Which Port?");
 				port = br.readLine();
-				tableMain.registerTableToMaster(master, Integer.parseInt(port));
+				tableMain.registerTableToMaster(master, Integer.parseInt(port), debugging);
 				table = (Table) LocateRegistry.getRegistry(Integer.parseInt(port)).lookup("table");
 				
 			}
 			//create Philosopher
-			else if(input.equals("create Philosopher")){
+			else if(input.equalsIgnoreCase("create Philosopher")){
 				if(table == null)
 					table = searchTable(br);
 				if(phil == null)
@@ -62,10 +67,10 @@ public class Main {
 				int numberOfPhil;
 				System.out.println("Number of Philosophers to add: ");
 				numberOfPhil = Integer.parseInt(br.readLine());
-				phil.addPhilosopher(numberOfPhil);
+				phil.addPhilosopher(numberOfPhil, debugging);
 			}
 			//remove Philosopher
-			else if(input.equals("remove Philosopher")){
+			else if(input.equalsIgnoreCase("remove Philosopher")){
 				if(phil == null)
 					System.out.println("No Philosophers to remove on this Server.");
 				else{
@@ -76,7 +81,7 @@ public class Main {
 				}
 			}
 			//create seats
-			else if(input.equals("create Seat")){
+			else if(input.equalsIgnoreCase("create Seat")){
 				if(table == null)
 					table = searchTable(br);
 				if(seat==null)
@@ -87,7 +92,7 @@ public class Main {
 				seat.addSeat(numberOfseats);
 			}
 			//remove Seats
-			else if(input.equals("remove Seat")){
+			else if(input.equalsIgnoreCase("remove Seat")){
 				if(seat == null)
 					System.out.println("No Seats to remove on this Server.");
 				else{
@@ -97,7 +102,19 @@ public class Main {
 					seat.removeSeat(numberOfSeat);
 				}
 			}
-			System.out.println("create Table, create/remove Philosopher, create/remove Seat, quit");
+			//set Debugging
+			else if(input.equalsIgnoreCase("set Debuging")){
+					int newDebug;
+					System.out.println("1==true; 0==false");
+					newDebug = Integer.parseInt(br.readLine());
+					if(newDebug==1){
+						debugging=true;
+					} else if(newDebug==0){
+						debugging = false;
+					}else
+					{System.out.print("debuging state not chnaged");}
+			}
+			System.out.println("create Table, create/remove Philosopher, create/remove Seat, set Debugging, quit");
 		}
 		br.close();
 

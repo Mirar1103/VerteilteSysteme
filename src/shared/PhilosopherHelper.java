@@ -20,13 +20,14 @@ public class PhilosopherHelper {
 		this.table = table;
 	}
 	
-	public synchronized void addPhilosopher(int numberOfPhil) throws RemoteException{
+	public synchronized void addPhilosopher(int numberOfPhil, boolean debugging) throws RemoteException{
 		if(numberOfPhil < 1)
 			throw new IllegalArgumentException("Number has to be greater than zero.");
 		
 		for(int i = 0; i < numberOfPhil; i++){
 			PhilosopherImpl phil = new PhilosopherImpl(-1);
 			phil.setTable(table);
+			phil.setShowOutput(debugging);
 			new Thread(phil).start();
 			listPhilosophers.add(phil);
 		}
