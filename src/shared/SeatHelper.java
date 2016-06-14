@@ -9,13 +9,10 @@ import java.util.List;
  */
 public class SeatHelper {
     private final Table table;
-    private final String host;
-    private List<Seat> listSeats = new LinkedList<Seat>();
-    private List<Fork> listForks = new LinkedList<Fork>();
+    private int createdSeats = 0;
 
     public SeatHelper(Table table){
         this.table = table;
-        this.host = System.getProperty("java.rmi.server.hostname");
     }
 
     public synchronized void addSeat(int numberOfSeats) throws RemoteException {
@@ -25,20 +22,18 @@ public class SeatHelper {
         for(int i = 0; i < numberOfSeats; i++){
             SeatImpl seat = new SeatImpl(null);
             ForkImpl fork = new ForkImpl(null);
-            table.registerNewForkAndSeat(fork, seat, host);
-            listSeats.add(seat);
-            listForks.add(fork);
+            table.registerNewForkAndSeat(fork, seat);
+            createdSeats++;
         }
     }
 
     public synchronized void removeSeat(int numberOfSeats) throws RemoteException {
-        if(numberOfSeats < 1 || numberOfSeats > listSeats.size())
+        if(numberOfSeats < 1 || numberOfSeats > createdSeats)
             throw new IllegalArgumentException("Wrong number of Seats for removing.");
 
         for(int i = 0; i < numberOfSeats; i++){
-            Seat seat= listSeats.remove(0);
-            Fork fork = listForks.remove(0);
-            table.removeForkAndSeat(fork, seat, host);
+            table.removeForkAndSeat();
+            createdSeats--;
         }
     }
 }

@@ -21,8 +21,8 @@ public interface Table extends Remote{
 	public int getNumberOfSemaphores()throws RemoteException;
 	public Table getNextTable() throws RemoteException;
 	public void setNextTable(Table table) throws RemoteException;
-	public void registerNewForkAndSeat(Fork fork, Seat seat, String host) throws RemoteException;
-	public void removeForkAndSeat(Fork fork, Seat seat, String host) throws RemoteException;
+	public void registerNewForkAndSeat(Fork fork, Seat seat) throws RemoteException;
+	public void removeForkAndSeat() throws RemoteException;
 	public int getID() throws RemoteException;
 	public void setID(int id) throws RemoteException;
 

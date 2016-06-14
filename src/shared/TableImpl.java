@@ -25,7 +25,6 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	private int numberSeats;
 	private List<Fork> forkList;
 	private List<Seat> seatList;
-	private List<String> seatHosts;
 	private List<Semaphore> semaphoreList;
 	private List<Thread> philosophers = new ArrayList<Thread>();
 	private int seatsPerSemaphore;
@@ -44,7 +43,6 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	public TableImpl() throws RemoteException {
 		forkList = Collections.synchronizedList(new ArrayList<Fork>());
 		seatList = Collections.synchronizedList(new ArrayList<Seat>());
-		seatHosts = Collections.synchronizedList(new ArrayList<String>());
 	}
 
 	/**
@@ -224,14 +222,12 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	 * Register a new Fork and a new Seat to the Table.
 	 * @param fork new fork
 	 * @param seat new seat
-	 * @param host
 	 * @throws RemoteException
 	 */
 	@Override
-	public void registerNewForkAndSeat(Fork fork, Seat seat, String host) throws RemoteException {
+	public void registerNewForkAndSeat(Fork fork, Seat seat) throws RemoteException {
 		forkList.add(fork);
 		seatList.add(seat);
-		seatHosts.add(host);
 		
 		if(philosophers.size() > 0){
 			Semaphore tmp = semaphoreList.get(semaphoreList.size()-1);
@@ -239,31 +235,54 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		}
 		else
 			setSeats(numberSeats+1);
-			
+		seatsLastSemaphore++;
 		System.out.println("seat was added");
 		
 	}
 
 	/**
 	 * Remove a given fork and seat.
-	 * @param fork the given fork
-	 * @param seat the given seat
-	 * @param host
 	 * @throws RemoteException
 	 */
 	@Override
-	public void removeForkAndSeat(Fork fork, Seat seat, String host) throws RemoteException {
-		forkList.remove(fork);
-		seatList.remove(seat);
-		seatHosts.remove(host);
+	public void removeForkAndSeat() throws RemoteException {
+		/*forkList.remove(fork);
+		seatList.remove(seat);*/
 		
 		if(philosophers.size() > 0){
 			Semaphore tmp = semaphoreList.get(semaphoreList.size()-1);
-			//TODO - decrease Semaphore
+			try {
+				tmp.acquire();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			boolean seatRemoved=false;
+			for(int lastSeat = seatList.size()-1; lastSeat>(seatList.size()-seatsLastSemaphore);lastSeat--){
+				if(!seatList.get(lastSeat).hasOwner()&&!seatRemoved){
+					seatList.remove(lastSeat);
+					forkList.remove(lastSeat);
+					seatRemoved=true;
+				}
+			}
+			if (seatsLastSemaphore==1){
+				semaphoreList.remove(semaphoreList.size()-1);
+				seatsLastSemaphore=seatsPerSemaphore;
+			} else {
+				seatsLastSemaphore--;
+			}
+
 		}
-		else
-			setSeats(numberSeats+1);
-		// TODO Auto-generated method stub
+		else {
+			forkList.remove(forkList.size()-1);
+			seatList.remove(seatList.size()-1);
+			setSeats(numberSeats - 1);
+			if (seatsLastSemaphore==1){
+				semaphoreList.remove(semaphoreList.size()-1);
+				seatsLastSemaphore=seatsPerSemaphore;
+			} else {
+				seatsLastSemaphore--;
+			}
+		}
 		System.out.println("seat was removed");
 	}
 	
