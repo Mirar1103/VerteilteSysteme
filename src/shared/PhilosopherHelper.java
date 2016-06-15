@@ -47,4 +47,9 @@ public class PhilosopherHelper {
 			}
 		}
 	}
+	public void setDebugging(boolean isWanted) throws RemoteException {
+		for(int i =0; i<listPhilosophers.size(); i++){
+			listPhilosophers.get(i).setShowOutput(isWanted);
+		}
+	}
 }

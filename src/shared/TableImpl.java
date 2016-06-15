@@ -137,7 +137,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		seatList.get(seat).standUp();
 		int releasedSemaphore = seat / seatsPerSemaphore;
 		if(releasedSemaphore > (getNumberOfSemaphores()-1))
-			semaphoreList.get(releasedSemaphore-1).release();
+			semaphoreList.get(getNumberOfSemaphores()-1).release();
 		else
 			semaphoreList.get(releasedSemaphore).release();
 	}
@@ -324,7 +324,6 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	 * @throws InterruptedException 
 	 */
 	public void movePhilosopher(Philosopher phil) throws RemoteException, InterruptedException {
-		System.out.println("Moving philosopher "+phil.getID());
 		if(showOutput) {
 			System.out.println("Moving philosopher "+phil.getID());
 		}

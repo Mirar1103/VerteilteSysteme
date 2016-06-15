@@ -113,6 +113,16 @@ public class Main {
 					}else
 					{System.out.print("debuging state not chnaged");}
 			}
+			//stop Debugging
+			else if(input.equalsIgnoreCase("sD")){
+					debugging = false;
+					phil.setDebugging(debugging);
+			}
+			//continue Debugging
+			else if(input.equalsIgnoreCase("cD")){
+				debugging = true;
+				phil.setDebugging(debugging);
+			}
 			System.out.println("create Table, create/remove Philosopher, create/remove Seat, set Debugging, quit");
 		}
 		br.close();
