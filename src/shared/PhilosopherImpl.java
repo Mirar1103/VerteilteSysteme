@@ -5,6 +5,8 @@ package shared;
 
 
 import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Random;
@@ -24,7 +26,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	private Table table;
 	private int totalEaten;
 	private int hunger;
-	private int philosopherID;
+	private String philosopherID;
 	private boolean banned;
 	private Seat currentSeat;
 	private boolean showOutput;
@@ -57,7 +59,13 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	 */
 	public PhilosopherImpl(int hunger) throws RemoteException{
 		super();
-		this.philosopherID = nextId.incrementAndGet();
+		InetAddress me;
+		try {
+			me = InetAddress.getLocalHost();
+		} catch (UnknownHostException e) {
+			me = null;
+		}
+		this.philosopherID = nextId.incrementAndGet()+ "@"+me.getHostAddress();
 		if(hunger == -1)
 			this.hunger = DEFAULT_HUNGER;
 		else
@@ -68,7 +76,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 		
 	}
 	
-	public PhilosopherImpl(Table table, int hunger, int philosopherID, int totalEaten, boolean banned) throws RemoteException{
+	public PhilosopherImpl(Table table, int hunger, String philosopherID, int totalEaten, boolean banned) throws RemoteException{
 		super();
 		this.table = table;
 		this.totalEaten = totalEaten;
@@ -334,7 +342,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 		}
 	}
 	
-	public int getID()throws RemoteException{
+	public String getID()throws RemoteException{
 		return this.philosopherID;
 	}
 	

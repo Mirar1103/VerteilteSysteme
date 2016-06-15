@@ -328,7 +328,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 			System.out.println("Moving philosopher "+phil.getID());
 		}
 		int hunger = phil.getHunger();
-		int philID = phil.getID();
+		String philID = phil.getID();
 		int meals = phil.getTotalEatenRounds();
 		boolean banned = phil.getBanned();
 		nextTable.recreatePhilosopher(hunger, philID, meals, banned);
@@ -345,7 +345,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	 * @param meals the total number of meals of this phil
 	 * @param banned the banned status 
 	 */
-	public void recreatePhilosopher(int hunger, int philID, int meals, boolean banned) throws RemoteException {
+	public void recreatePhilosopher(int hunger, String philID, int meals, boolean banned) throws RemoteException {
 		PhilosopherImpl phil = new PhilosopherImpl(this, hunger, philID, meals, banned);
 		philosophers.add(phil);
 		new Thread(phil).start();
