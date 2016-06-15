@@ -42,8 +42,7 @@ public class PhilosopherHelper {
 			try {
 				phil.kill();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("Removed Philosopher total #"+listPhilosophers.size());
 			}
 		}
 	}

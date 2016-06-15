@@ -28,7 +28,8 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	private boolean banned;
 	private Seat currentSeat;
 	private boolean showOutput;
-	
+	private boolean isntStopped = true;
+
 	private final static int DEFAULT_HUNGER = 80;
 	private final static int THINK_TIME = 3000;
 	private final static int BANNED_TIME = 10000;
@@ -85,7 +86,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	@Override
 	public void run(){
 		try{
-			while(!Thread.currentThread().isInterrupted()){
+			while(!Thread.currentThread().isInterrupted()&&isntStopped){
 				while(table == null){
 					if(showOutput) {
 						System.out.println("Philosopher " + philosopherID + " waiting for table.");
@@ -342,6 +343,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	}
 	
 	public void kill()throws RemoteException, InterruptedException{
+		isntStopped=false;
 		throw new InterruptedException("Kill this Philosopher");
 	}
 	
