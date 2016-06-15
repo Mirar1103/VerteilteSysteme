@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
-import java.util.logging.Logger;
 
 /**
  * @author Dominik Ernsberger
@@ -25,12 +24,13 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	private List<Fork> forkList;
 	private List<Seat> seatList;
 	private List<Semaphore> semaphoreList;
-	private List<Thread> philosophers = new ArrayList<Thread>();
+	private List<Philosopher> philosophers = new ArrayList<Philosopher>();
 	private int seatsPerSemaphore;
 	private int seatsLastSemaphore;
 	private Table nextTable = this;
 	private int id = -1;
 	private boolean showOutput;
+	private PhilosopherHelper philHelp;
 	
 	private final static int MAX_SEATS_SEMAPHORE = 10;
 	private final static int MIN_SEMAPHORES = 1;
@@ -85,8 +85,8 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		int offsetSeatSemaphore;
 		int randomSemaphore = Math.abs(new Random().nextInt()% getNumberOfSemaphores());
 		
-		if(!philosophers.contains(owner.getThread()))
-			philosophers.add(owner.getThread());
+		if(!philosophers.contains(owner))
+			philosophers.add(owner);
 		
 		for(int index = 0; index < getNumberOfSemaphores(); index++){
 			acquiredSemaphore = (index+randomSemaphore)%getNumberOfSemaphores();
@@ -332,7 +332,8 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		int meals = phil.getTotalEatenRounds();
 		boolean banned = phil.getBanned();
 		nextTable.recreatePhilosopher(hunger, philID, meals, banned);
-		philosophers.remove(phil.getThread());
+		philosophers.remove(phil);
+		philHelp.removePhilosopher(phil);
 		phil.kill();		
 	}
 	
@@ -345,12 +346,13 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	 * @param banned the banned status 
 	 */
 	public void recreatePhilosopher(int hunger, int philID, int meals, boolean banned) throws RemoteException {
-		Thread phil = new Thread(new PhilosopherImpl(this, hunger, philID, meals, banned));
+		PhilosopherImpl phil = new PhilosopherImpl(this, hunger, philID, meals, banned);
 		philosophers.add(phil);
-		phil.start();
+		new Thread(phil).start();
 		if(showOutput) {
 			System.out.println("TablePart #" + this.id + " received an existing philosopher " + philID);
 		}
+		philHelp.addPhilosopher(phil);
 	}
 
 	public void setShowOutput(boolean isWanted)throws RemoteException{
@@ -359,5 +361,11 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 
 	public int getSeatPosition(Seat seat) throws RemoteException{
 		return seatList.indexOf(seat);
+	}
+	public void setPhilHelp(PhilosopherHelper philHelp) throws RemoteException{
+		this.philHelp = philHelp;
+	}
+	public void removePhilosopher(Philosopher phil) throws RemoteException{
+		philosophers.remove(philosophers.indexOf(phil));
 	}
 }

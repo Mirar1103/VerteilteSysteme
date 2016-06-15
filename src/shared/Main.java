@@ -27,7 +27,7 @@ public class Main {
 		boolean debugging=false;
 		Table table = null;
 		Master master = null;
-		PhilosopherHelper phil = null;
+		PhilosopherHelperImpl phil = null;
 		TableMain tableMain = new TableMain();
 		SeatHelper seat = null;
 		System.out.println("Welcome to the shared dining philosophers! Possible commands are:");
@@ -63,7 +63,7 @@ public class Main {
 				if(table == null)
 					table = searchTable(br);
 				if(phil == null)
-					phil = new PhilosopherHelper(table);
+					phil = new PhilosopherHelperImpl(table);
 				int numberOfPhil;
 				System.out.println("Number of Philosophers to add: ");
 				numberOfPhil = Integer.parseInt(br.readLine());
@@ -73,7 +73,8 @@ public class Main {
 			else if(input.equalsIgnoreCase("remove Philosopher")){
 				if(table == null)
 					table = searchTable(br);
-				
+				if(phil == null)
+					phil = new PhilosopherHelperImpl(table);
 				int numberOfPhil;
 				System.out.println("Number of Philosopher to remove: ");
 				numberOfPhil = Integer.parseInt(br.readLine());

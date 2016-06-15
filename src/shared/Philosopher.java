@@ -22,4 +22,5 @@ public interface Philosopher extends Remote {
 	public int getHunger()throws RemoteException;
 	public boolean getBanned()throws RemoteException;
 	public void setShowOutput(boolean isWanted) throws RemoteException;
+	public void softKill() throws RemoteException;
 }

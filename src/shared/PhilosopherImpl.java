@@ -181,7 +181,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 			return false;
 
 		if(showOutput) {
-			System.out.println("Philosopher " + philosopherID + "sits down on seat " + currentSeat + "on Table " + table.getID());
+			System.out.println("Philosopher " + philosopherID + "sits down on seat " + table.getSeatPosition(currentSeat) + "on Table " + table.getID());
 		}
 		
 		//pick up both forks
@@ -352,6 +352,9 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	}
 	public void setShowOutput(boolean isWanted) throws RemoteException{
 		showOutput = isWanted;
+	}
+	public void softKill() throws RemoteException{
+		isntStopped = false;
 	}
 
 }
