@@ -13,8 +13,8 @@ import java.rmi.RemoteException;
  */
 public interface Table extends Remote{
 
-	public int takeSeat(Philosopher owner) throws RemoteException;
-	public void standUp(int seat)throws RemoteException;
+	public Seat takeSeat(Philosopher owner) throws RemoteException;
+	public void standUp(Seat seat)throws RemoteException;
 	public boolean pickUpFork(int fork, Philosopher owner)throws RemoteException;
 	public void dropFork(int fork)throws RemoteException;
 	public int getNumberOfSeats()throws RemoteException;
@@ -29,4 +29,5 @@ public interface Table extends Remote{
 	public void movePhilosopher(Philosopher phil) throws RemoteException, InterruptedException;
 	public void recreatePhilosopher(int hunger, int id, int totalEatenRounds, boolean banned) throws RemoteException;
 	public void setShowOutput(boolean isWanted) throws RemoteException;
+	public int getSeatPosition(Seat seat) throws RemoteException;
 }

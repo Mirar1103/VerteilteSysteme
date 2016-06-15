@@ -77,7 +77,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	 * @param owner the Philosopher who wants to sit down
 	 * @return the seat number or -1 if no seat was taken
 	 */
-	public int takeSeat(Philosopher owner) throws RemoteException {
+	public Seat takeSeat(Philosopher owner) throws RemoteException {
 		boolean foundFreeSemaphore = false;
 		int seat;
 		int acquiredSemaphore = -1;
@@ -108,7 +108,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 				seat = getOffsetSeat(index, offsetSeatSemaphore);
 				if((!seatList.get(seat).hasOwner()) && (!seatList.get((seat+1)%getNumberOfSeats()).hasOwner()) && (!seatList.get((seat+getNumberOfSeats()-1)%getNumberOfSeats()).hasOwner())){
 					if(seatList.get(seat).sitDown(owner))
-						return seat;
+						return seatList.get(seat);
 				}
 			}
 			//test for a free seat with max. one neighbor
@@ -116,26 +116,26 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 				seat = getOffsetSeat(index, offsetSeatSemaphore);
 				if((!seatList.get(seat).hasOwner()) && ((!seatList.get((seat+1)%getNumberOfSeats()).hasOwner()) || (!seatList.get((seat+getNumberOfSeats()-1)%getNumberOfSeats()).hasOwner()))){
 					if(seatList.get(seat).sitDown(owner))
-						return seat;
+						return seatList.get(seat);
 				}
 			}
 			//test for a free seat
 			for(int index = 0; index < possibleSeats; index++){
 				seat = getOffsetSeat(index, offsetSeatSemaphore);
 				if(seatList.get(seat).sitDown(owner))
-					return seat;
+					return seatList.get(seat);
 			}
 		}
-		return -1;
+		return null;
 	}
 	
 	/**
 	 * Stands up and release the seat.
 	 * @param seat the seat number
 	 */
-	public void standUp(int seat) throws RemoteException {
-		seatList.get(seat).standUp();
-		int releasedSemaphore = seat / seatsPerSemaphore;
+	public void standUp(Seat seat) throws RemoteException {
+		seat.standUp();
+		int releasedSemaphore = seatList.indexOf(seat) / seatsPerSemaphore;
 		if(releasedSemaphore > (getNumberOfSemaphores()-1))
 			semaphoreList.get(getNumberOfSemaphores()-1).release();
 		else
@@ -355,5 +355,9 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 
 	public void setShowOutput(boolean isWanted)throws RemoteException{
 		showOutput = isWanted;
+	}
+
+	public int getSeatPosition(Seat seat) throws RemoteException{
+		return seatList.indexOf(seat);
 	}
 }

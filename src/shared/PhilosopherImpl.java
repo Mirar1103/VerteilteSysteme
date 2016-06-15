@@ -26,7 +26,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	private int hunger;
 	private int philosopherID;
 	private boolean banned;
-	private int currentSeat;
+	private Seat currentSeat;
 	private boolean showOutput;
 	
 	private final static int DEFAULT_HUNGER = 80;
@@ -62,7 +62,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 		else
 			this.hunger = hunger;
 		banned = false;
-		currentSeat = -1;
+		currentSeat = null;
 		totalEaten = 0;
 		
 	}
@@ -74,7 +74,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 		this.hunger = hunger;
 		this.philosopherID = philosopherID;
 		this.banned = banned;
-		currentSeat = -1;
+		currentSeat = null;
 	}
 
 	/**
@@ -176,7 +176,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 		}
 		currentSeat = table.takeSeat(this);
 		
-		if (currentSeat == -1)
+		if (currentSeat == null)
 			return false;
 
 		if(showOutput) {
@@ -184,8 +184,8 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 		}
 		
 		//pick up both forks
-		int leftFork = currentSeat;
-		int rightFork = currentSeat+1;//)%table.getNumberOfSeats();
+		int leftFork = table.getSeatPosition(currentSeat);
+		int rightFork = leftFork+1;//)%table.getNumberOfSeats();
 		
 		if(getBothForks(leftFork, rightFork)){
 			try {
