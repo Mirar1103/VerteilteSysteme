@@ -16,8 +16,7 @@ public class MasterMain {
         Registry reg = LocateRegistry.getRegistry(Integer.parseInt(args[0]));
         reg.rebind(objName, masterStub);
         System.out.println(objName + " bound to registry");
-
-
+        new Thread(master).start();
         System.out.println("Master is running!!");
 
     }

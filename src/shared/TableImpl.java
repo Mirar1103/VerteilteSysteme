@@ -30,7 +30,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	private Table nextTable = this;
 	private int id = -1;
 	private boolean showOutput;
-	private PhilosopherHelperImpl philHelp;
+	private PhilosopherHelper philHelp;
 	
 	private final static int MAX_SEATS_SEMAPHORE = 10;
 	private final static int MIN_SEMAPHORES = 1;
@@ -200,9 +200,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	 * @return the number of seats
 	 */
 	public int getNumberOfSeats(){
-		if(seatList != null)
-			return seatList.size();
-		return 0;
+		return seatList.size();
 	}
 	
 	/**
@@ -210,9 +208,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	 * @return the number of semaphores
 	 */
 	public int getNumberOfSemaphores(){
-		if(semaphoreList != null)
-			return semaphoreList.size();
-		return 0;
+		return semaphoreList.size();
 	}
 	
 	/**
@@ -360,9 +356,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	public void recreatePhilosopher(int hunger, String philID, int meals, boolean banned) throws RemoteException {
 		PhilosopherImpl phil = new PhilosopherImpl(this, hunger, philID, meals, banned);
 		philosophers.add(phil);
-		Thread newPhil = new Thread(phil);
-		newPhil.start();
-		phil.setNewThread(newPhil);
+		new Thread(phil).start();
 		philHelp.addPhilosopher(phil);
 		if(showOutput) {
 			System.out.println("TablePart #" + this.id + " received an existing philosopher " + philID);
@@ -376,11 +370,11 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	public int getSeatPosition(Seat seat) throws RemoteException{
 		return seatList.indexOf(seat);
 	}
-	public void setPhilHelp(PhilosopherHelperImpl philHelp) throws RemoteException{
+	public void setPhilHelp(PhilosopherHelper philHelp) throws RemoteException{
 		this.philHelp = philHelp;
 	}
 	
-	public PhilosopherHelperImpl getPhilHelp() throws RemoteException {
+	public PhilosopherHelper getPhilHelp() throws RemoteException {
 		return philHelp;
 	}
 	

@@ -38,7 +38,7 @@ public class PhilosopherHelperImpl implements PhilosopherHelper, Serializable{
 		}
 	}
 	
-	public synchronized void removePhilosopher(int numberOfPhil) throws RemoteException {
+	public synchronized void removePhilosopher(int numberOfPhil, Master master) throws RemoteException {
 		if(numberOfPhil < 1 || numberOfPhil > listPhilosophers.size())
 			throw new IllegalArgumentException("Wrong number of Philosopher for removing.");
 		
@@ -47,6 +47,7 @@ public class PhilosopherHelperImpl implements PhilosopherHelper, Serializable{
 			table.removePhilosopher(phil);
 			System.out.println("Removed Philosopher total #"+listPhilosophers.size());
 			System.out.println("NAMEEEEE #"+phil.getID());
+			master.removePhilosopher(phil);
 			phil.softKill();
 		}
 	}

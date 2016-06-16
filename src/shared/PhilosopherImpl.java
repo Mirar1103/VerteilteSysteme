@@ -370,7 +370,12 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 		isntStopped = false;
 		System.out.println("SET THE FLAG!!!" + isntStopped + " # " +getID());
 	}
-	
+
+	@Override
+	public void ban() throws RemoteException {
+		this.banned=true;
+	}
+
 	public boolean isAbleForRemoving() throws RemoteException{
 		return ableForRemoving;
 	}
