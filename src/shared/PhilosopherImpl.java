@@ -365,5 +365,4 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	public void softKill() throws RemoteException{
 		isntStopped = false;
 	}
-
 }

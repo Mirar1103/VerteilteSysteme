@@ -79,6 +79,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	 */
 	public Seat takeSeat(Philosopher owner) throws RemoteException {
 		boolean foundFreeSemaphore = false;
+		boolean philInList = false;
 		int seat;
 		int acquiredSemaphore = -1;
 		int possibleSeats;
@@ -86,8 +87,11 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		int randomSemaphore = Math.abs(new Random().nextInt()% getNumberOfSemaphores());
 		
 		for(int i = 0 ; i < philosophers.size(); i++){
-			if(!philosophers.get(i).getID().equals(owner.getID()))
+			if(philosophers.get(i).getID().equals(owner.getID()))
+				philInList = true;
+			if(!philInList)	
 				philosophers.add(owner);
+			break;
 		}
 		
 			
@@ -227,7 +231,6 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	@Override
 	public void registerNewForkAndSeat(Fork fork, Seat seat) throws RemoteException {
 		boolean added = false;
-		System.out.println("NUMBER PHIL #" + philosophers.size());
 		if(philosophers.size() > 0){
 			while(!added){
 				if(!forkList.get(forkList.size()-1).hasOwner() && !seatList.get(seatList.size()-1).hasOwner()){
@@ -353,12 +356,11 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	public void recreatePhilosopher(int hunger, String philID, int meals, boolean banned) throws RemoteException {
 		PhilosopherImpl phil = new PhilosopherImpl(this, hunger, philID, meals, banned);
 		philosophers.add(phil);
+		philHelp.addPhilosopher(phil);
 		new Thread(phil).start();
 		if(showOutput) {
 			System.out.println("TablePart #" + this.id + " received an existing philosopher " + philID);
 		}
-		philHelp.addPhilosopher(phil);
-		System.out.println("FINSISH RECREATE");
 	}
 
 	public void setShowOutput(boolean isWanted)throws RemoteException{
@@ -371,7 +373,21 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	public void setPhilHelp(PhilosopherHelper philHelp) throws RemoteException{
 		this.philHelp = philHelp;
 	}
-	public void removePhilosopher(Philosopher phil) throws RemoteException{
-		philosophers.remove(phil);
+	
+	public PhilosopherHelper getPhilHelp() throws RemoteException {
+		return philHelp;
 	}
+	
+	
+	public void removePhilosopher(Philosopher phil) throws RemoteException {
+		//if (philosophers.size() > 0) {
+		//	boolean philRemoved = false;
+		//	while (!philRemoved) {
+		//		if (phil.isAbleForRemoving()) {
+					philosophers.remove(phil);
+		//		}
+		//	}
+		//}
+	}
+	
 }

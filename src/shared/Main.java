@@ -27,7 +27,7 @@ public class Main {
 		boolean debugging=false;
 		Table table = null;
 		Master master = null;
-		PhilosopherHelperImpl phil = null;
+		PhilosopherHelper phil = null;
 		TableMain tableMain = new TableMain();
 		SeatHelper seat = null;
 		System.out.println("Welcome to the shared dining philosophers! Possible commands are:");
@@ -63,10 +63,10 @@ public class Main {
 			}
 			//create Philosopher
 			else if(input.equalsIgnoreCase("create Philosopher")){
-				if(table == null)
+				if(table == null){
 					table = searchTable(br);
-				if(phil == null)
-					phil = new PhilosopherHelperImpl(table);
+					phil = table.getPhilHelp();
+				}
 				int numberOfPhil;
 				System.out.println("Number of Philosophers to add: ");
 				numberOfPhil = Integer.parseInt(br.readLine());
@@ -74,10 +74,10 @@ public class Main {
 			}
 			//remove Philosopher
 			else if(input.equalsIgnoreCase("remove Philosopher")){
-				if(table == null)
+				if(table == null){
 					table = searchTable(br);
-				if(phil == null)
-					phil = new PhilosopherHelperImpl(table);
+					phil = table.getPhilHelp();
+				}
 				int numberOfPhil;
 				System.out.println("Number of Philosopher to remove: ");
 				numberOfPhil = Integer.parseInt(br.readLine());
@@ -85,8 +85,10 @@ public class Main {
 			}
 			//create seats
 			else if(input.equalsIgnoreCase("create Seat")){
-				if(table == null)
+				if(table == null){
 					table = searchTable(br);
+					phil = table.getPhilHelp();
+				}
 				if(seat==null)
 					seat = new SeatHelper(table);
 				int numberOfseats;
@@ -96,8 +98,10 @@ public class Main {
 			}
 			//remove Seats
 			else if(input.equalsIgnoreCase("remove Seat")){
-				if(table == null)
+				if(table == null){
 					table = searchTable(br);
+					phil = table.getPhilHelp();
+				}
 				if(seat==null)
 					seat = new SeatHelper(table);
 				int numberOfSeat;
