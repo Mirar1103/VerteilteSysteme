@@ -29,7 +29,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 	private SeatHelper seatHelper;
 
 
-	private final static long TIMEOUT = 200000;
+	private final static long TIMEOUT = 10000;
 	private final static int MAX_EAT_MORE = 10;
 	/**
 	 * @throws RemoteException
@@ -126,7 +126,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 				try {
 					updateTable(tableList.get(i));
 				} catch (RemoteException e) {
-					restartPhil(philIds.get(i));
+					restartTable(tableList.get(i));
 				}
 			}
 
