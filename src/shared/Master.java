@@ -8,15 +8,12 @@ import java.rmi.RemoteException;
  */
 public interface Master extends Remote{
 
-	/**
-	 * @param table
-	 * @throws RemoteException 
-	 */
+
+
 	void registerTable(Table table) throws RemoteException;
 
-	void registerTablemain(TableMain main) throws  RemoteException;
-
 	void registerSeatHelper(SeatHelper seatHelper) throws RemoteException;
-
+	void removePhilosopher(Philosopher phil) throws RemoteException;
+	void removeTable(Table table) throws RemoteException;
 
 }

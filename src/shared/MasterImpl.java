@@ -1,7 +1,10 @@
 package shared;
 
 import java.io.Serializable;
+import java.net.UnknownHostException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,25 +26,24 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 	private Map<String, Boolean> philBanned = new HashMap<>();
 	private Map<String, Philosopher> philosophers = new HashMap<>();
 	private Map<String, Long> philLastupdate = new HashMap<>();
+	private SeatHelper seatHelper;
+
 
 	private final static long TIMEOUT = 200000;
-    /**
+	/**
 	 * @throws RemoteException
 	 */
 	public MasterImpl() throws RemoteException {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public void run(){
 		while(true) {
 			checkTables();
 			checkPhils();
-			//checkSeatsandForks
-			//checkEaten
-			
 		}
 	}
+
 
     public void registerTable(Table table) throws RemoteException {
         if(tableList.size()>0){
@@ -59,14 +61,12 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 
     }
 
-	@Override
-	public void registerTablemain(TableMain main) throws RemoteException {
-		//dummy
-	}
 
 	@Override
 	public void registerSeatHelper(SeatHelper seatHelper) throws RemoteException {
-		//dummy
+		if(seatHelper==null){
+			this.seatHelper = seatHelper;
+		}
 	}
 
 	public void updatePhilosopher(Philosopher phil)throws RemoteException{
@@ -138,14 +138,20 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 		}
 	}
 
+
 	private void restartTable(Table table) {
 		if(tableList.size()>1){
-			//add seats to another table
+			try {
+				seatHelper.addSeat(tableSeats.get(table));
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
 		} else {
-			//create table and seats, at available main;
+			System.out.println("all tables are dead, restart System;");
 		}
 	}
-	private void removePhilosopher(Philosopher phil) throws RemoteException {
+
+	public void removePhilosopher(Philosopher phil) throws RemoteException {
 		philIds.remove(phil.getID());
 		philHunger.remove(phil.getID());
 		philBanned.remove(phil.getID());
@@ -153,7 +159,9 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 		philosophers.remove(phil.getID());
 		philLastupdate.remove(phil.getID());
 	}
-	private void removeTable(Table table) throws RemoteException {
+
+
+	public void removeTable(Table table) throws RemoteException {
 		tableLastUpdate.remove(table);
 		tableNextTable.remove(table);
 		tableSemaphores.remove(table);

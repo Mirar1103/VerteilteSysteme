@@ -81,7 +81,7 @@ public class Main {
 				int numberOfPhil;
 				System.out.println("Number of Philosopher to remove: ");
 				numberOfPhil = Integer.parseInt(br.readLine());
-				phil.removePhilosopher(numberOfPhil);
+				phil.removePhilosopher(numberOfPhil, master);
 			}
 			//create seats
 			else if(input.equalsIgnoreCase("create Seat")){
