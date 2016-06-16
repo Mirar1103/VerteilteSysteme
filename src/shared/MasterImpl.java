@@ -12,6 +12,10 @@ import java.util.Map;
  */
 public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 	private List<Table> tableList = new ArrayList<Table>();
+	private Map<Table, Long> tableLastUpdate;
+	private Map<Table, Integer> tableSeats;
+	private Map<Table, Integer> tableSemaphores;
+	private Map<Table, Table> tableNextTable;
 	private List<String> philIds;
 	private Map<String, Integer> philEaten;
 	private Map<String, Integer> philHunger;
@@ -30,7 +34,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 
 	public void run(){
 		while(true) {
-			//checktables
+			checkTables();
 			checkPhils();
 			//checkSeatsandForks
 			//checkEaten
@@ -44,6 +48,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 	        currentLastTable.setNextTable( table);
 	        table.setNextTable( tableList.get(0));
 	        tableList.add(table);
+			updateTable(table);
         }
         else
         {
@@ -84,13 +89,45 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 
 	}
 
+	private void checkTables(){
+		for (int i =0; i<tableList.size(); i++){
+			if(System.currentTimeMillis()-tableLastUpdate.get(tableList.get(i))>TIMEOUT){
+				try {
+					updateTable(tableList.get(i));
+				} catch (RemoteException e) {
+					restartPhil(philIds.get(i));
+				}
+			}
+
+		}
+
+	}
+
+	private void updateTable(Table table) throws RemoteException {
+		if(tableLastUpdate.containsKey(table)) {
+			tableSeats.replace(table, table.getNumberOfSeats());
+			tableSemaphores.replace(table, table.getNumberOfSemaphores());
+			tableNextTable.replace(table, table.getNextTable());
+			tableLastUpdate.replace(table, System.currentTimeMillis());
+		}else{
+			tableSeats.put(table, table.getNumberOfSeats());
+			tableSemaphores.put(table, table.getNumberOfSemaphores());
+			tableNextTable.put(table, table.getNextTable());
+			tableLastUpdate.put(table, System.currentTimeMillis());
+		}
+	}
+
 	private  void restartPhil(String philId){
 		try {
 			tableList.get(0).recreatePhilosopher(philHunger.get(philId), philId, philEaten.get(philId), philBanned.get(philId));
 		} catch (RemoteException e) {
-			//restart table;
+			restartTable(tableList.get(0));
 			restartPhil(philId);
 		}
+	}
+
+	private void restartTable(Table table) {
+		//create table and restart, but where??
 	}
 
 }
