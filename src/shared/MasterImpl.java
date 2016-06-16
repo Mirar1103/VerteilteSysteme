@@ -32,12 +32,16 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 	private final static long TIMEOUT = 10000;
 	private final static int MAX_EAT_MORE = 10;
 	/**
+	 * creates anew Master
 	 * @throws RemoteException
 	 */
 	public MasterImpl() throws RemoteException {
 		super();
 	}
 
+	/**
+	 * starts the Mater.
+	 */
 	public void run(){
 		while(true) {
 			checkTables();
@@ -45,7 +49,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 		}
 	}
 
-
+	@Override
     public void registerTable(Table table) throws RemoteException {
         if(tableList.size()>0){
 	        Table currentLastTable = tableList.get(tableList.size()-1);
@@ -70,6 +74,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 		}
 	}
 
+	@Override
 	public void updatePhilosopher(Philosopher phil)throws RemoteException{
 		if(philIds.contains(phil.getID())){
 			philEaten.replace(phil.getID(), phil.getTotalEatenRounds());
@@ -88,6 +93,9 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 		}
 	}
 
+	/**
+	 * goes through the list of tracked philosophers and checks if they are upto date and/or reachable.
+	 */
 	private void checkPhils(){
 		for (int i =0; i<philIds.size(); i++){
 			while(philLastupdate.get(philIds.get(i))==null){
@@ -116,6 +124,9 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 
 	}
 
+	/**
+	 * goes through the List of tables and checks if their data is uptodate and7or if they are still reachable.
+	 */
 	private void checkTables(){
 		for (int i =0; i<tableList.size(); i++){
 			lastTestedTable=i;
@@ -135,6 +146,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 
 	}
 
+	@Override
 	public void updateTable(Table table) throws RemoteException {
 		if(tableLastUpdate.containsKey(table)) {
 			tableSeats.replace(table, table.getNumberOfSeats());
@@ -149,6 +161,10 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 		}
 	}
 
+	/**
+	 * recreates a lost philosopher.
+	 * @param philId
+     */
 	private  void restartPhil(String philId){
 		try {
 			tableList.get(0).recreatePhilosopher(philHunger.get(philId), philId, philEaten.get(philId), philBanned.get(philId));
@@ -158,7 +174,10 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 		}
 	}
 
-
+	/**
+	 * adds the seats of a lost table to another table.
+	 * @param table
+     */
 	private void restartTable(Table table) {
 		if(table==null){
 			System.out.println("given table was null");
@@ -174,6 +193,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 		}
 	}
 
+	@Override
 	public void removePhilosopher(Philosopher phil) throws RemoteException {
 		philIds.remove(phil.getID());
 		philHunger.remove(phil.getID());
@@ -183,7 +203,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 		philLastupdate.remove(phil.getID());
 	}
 
-
+	@Override
 	public void removeTable(Table table) throws RemoteException {
 		tableLastUpdate.remove(table);
 		tableNextTable.remove(table);

@@ -17,6 +17,7 @@ import java.rmi.registry.LocateRegistry;
  */
 public class Main {
 	/**
+	 * this method starts the text based input for the user to add objekts.
 	 * @param args
 	 * @throws IOException 
 	 * @throws NotBoundException 
@@ -139,6 +140,7 @@ public class Main {
 	}
 
 	/**
+	 * searches for a table at a Host and port written into the given buffered reader.
 	 * @param br
 	 * @return
 	 * @throws IOException 
@@ -154,6 +156,8 @@ public class Main {
 	}
 
 	/**
+	 * searches for a master at the host and port written into the buffered reader.
+	 *
 	 * @param br
 	 * @return
 	 * @throws IOException
