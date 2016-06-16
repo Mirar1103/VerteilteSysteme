@@ -200,9 +200,6 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	 * @return the number of seats
 	 */
 	public int getNumberOfSeats(){
-		if(seatList==null){
-			return 0;
-		}
 		return seatList.size();
 	}
 	
@@ -211,9 +208,6 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	 * @return the number of semaphores
 	 */
 	public int getNumberOfSemaphores(){
-		if(semaphoreList==null){
-			return 0;
-		}
 		return semaphoreList.size();
 	}
 	

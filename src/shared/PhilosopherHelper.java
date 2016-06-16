@@ -8,7 +8,7 @@ import java.rmi.RemoteException;
  */
 public interface PhilosopherHelper extends Remote {
 
-    public void addPhilosopher(Philosopher phil) throws RemoteException;
+    public void addPhilosopher(PhilosopherImpl phil) throws RemoteException;
     public void removePhilosopher(Philosopher phil)throws RemoteException;
     
     public void addPhilosopher(int numberOfPhil, boolean debugging) throws RemoteException;

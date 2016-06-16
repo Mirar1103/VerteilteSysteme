@@ -32,6 +32,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	private boolean showOutput;
 	private boolean isntStopped = true;
 	private boolean ableForRemoving = true;
+	private Thread currentThread;
 
 	private final static int DEFAULT_HUNGER = 80;
 	private final static int THINK_TIME = 3000;
@@ -104,6 +105,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 						MONITOR.wait();
 				}
 				
+				System.out.println("INSIDE - " + isntStopped);
 				think();
 				int random  = Math.abs(new Random().nextInt()% 100);
 				if(random < hunger){
@@ -351,7 +353,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	}
 	
 	public Thread getThread()throws RemoteException{
-		return Thread.currentThread();
+		return currentThread;
 	}
 	
 	public void kill()throws RemoteException, InterruptedException{
@@ -366,6 +368,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	}
 	public void softKill() throws RemoteException{
 		isntStopped = false;
+		System.out.println("SET THE FLAG!!!" + isntStopped + " # " +getID());
 	}
 
 	@Override
@@ -375,5 +378,9 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 
 	public boolean isAbleForRemoving() throws RemoteException{
 		return ableForRemoving;
+	}
+	
+	public void setNewThread(Thread newThread){
+		this.currentThread = newThread;
 	}
 }
