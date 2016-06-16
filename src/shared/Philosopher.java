@@ -23,4 +23,6 @@ public interface Philosopher extends Remote {
 	public boolean getBanned()throws RemoteException;
 	public void setShowOutput(boolean isWanted) throws RemoteException;
 	public void softKill() throws RemoteException;
+
+	public boolean isAbleForRemoving() throws RemoteException;
 }

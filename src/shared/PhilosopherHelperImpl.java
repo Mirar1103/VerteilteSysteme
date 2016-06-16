@@ -43,9 +43,9 @@ public class PhilosopherHelperImpl extends UnicastRemoteObject implements Philos
 		for(int i = 0; i < numberOfPhil; i++){
 			Philosopher phil = listPhilosophers.remove(0);
 			table.removePhilosopher(phil);
-				phil.softKill();
-				System.out.println("Removed Philosopher total #"+listPhilosophers.size());
-
+			System.out.println("Removed Philosopher total #"+listPhilosophers.size());
+			System.out.println("NAMEEEEE #"+phil.getID());
+			phil.softKill();
 		}
 	}
 	public void setDebugging(boolean isWanted) throws RemoteException {
@@ -53,10 +53,15 @@ public class PhilosopherHelperImpl extends UnicastRemoteObject implements Philos
 			listPhilosophers.get(i).setShowOutput(isWanted);
 		}
 	}
-	public void addPhilosopher(Philosopher phil) throws RemoteException{
+	public synchronized void addPhilosopher(Philosopher phil) throws RemoteException{
 		listPhilosophers.add(phil);
 	}
-	public void removePhilosopher(Philosopher phil) throws RemoteException{
-		listPhilosophers.remove(phil);
+	public synchronized void removePhilosopher(Philosopher phil) throws RemoteException{
+		for(int i = 0; i < listPhilosophers.size() ; i++){
+			if(listPhilosophers.get(i).getID().equals(phil.getID())){
+				listPhilosophers.remove(i);
+				break;
+			}
+		}
 	}
 }
