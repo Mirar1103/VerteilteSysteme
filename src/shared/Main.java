@@ -27,7 +27,7 @@ public class Main {
 		boolean debugging=false;
 		Table table = null;
 		Master master = null;
-		PhilosopherHelper phil = null;
+		PhilosopherHelperImpl phil = null;
 		TableMain tableMain = new TableMain();
 		SeatHelper seat = null;
 		System.out.println("Welcome to the shared dining philosophers! Possible commands are:");
@@ -57,8 +57,10 @@ public class Main {
 				tableMain.registerTableToMaster(master, Integer.parseInt(port), debugging);
 				table = (Table) LocateRegistry.getRegistry(Integer.parseInt(port)).lookup("table");
 				
-				if(phil == null)
+				if(phil == null){
 					phil = new PhilosopherHelperImpl(table);
+					table.setPhilHelp(phil);
+				}
 				
 			}
 			//create Philosopher

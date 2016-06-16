@@ -30,7 +30,7 @@ public interface Table extends Remote{
 	public void recreatePhilosopher(int hunger, String id, int totalEatenRounds, boolean banned) throws RemoteException;
 	public void setShowOutput(boolean isWanted) throws RemoteException;
 	public int getSeatPosition(Seat seat) throws RemoteException;
-	public void setPhilHelp(PhilosopherHelper philHelp) throws RemoteException;
-	public PhilosopherHelper getPhilHelp() throws RemoteException;
+	public void setPhilHelp(PhilosopherHelperImpl philHelp) throws RemoteException;
+	public PhilosopherHelperImpl getPhilHelp() throws RemoteException;
 	public void removePhilosopher(Philosopher phil) throws RemoteException;
 }

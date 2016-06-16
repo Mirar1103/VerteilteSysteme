@@ -3,6 +3,7 @@
  */
 package shared;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
@@ -14,13 +15,14 @@ import java.util.List;
  *
  * 29.05.2016
  */
-public class PhilosopherHelperImpl extends UnicastRemoteObject implements PhilosopherHelper{
+public class PhilosopherHelperImpl implements PhilosopherHelper, Serializable{
+	private static final long serialVersionUID = 1L;
 	private final Table table;
-	private List<Philosopher> listPhilosophers = new ArrayList<Philosopher>();
+	private List<PhilosopherImpl> listPhilosophers = new ArrayList<PhilosopherImpl>();
 	
 	public PhilosopherHelperImpl(Table table) throws RemoteException {
 		this.table = table;
-		table.setPhilHelp(this);
+		//table.setPhilHelp(this);
 	}
 	
 	public synchronized void addPhilosopher(int numberOfPhil, boolean debugging) throws RemoteException{
@@ -53,7 +55,7 @@ public class PhilosopherHelperImpl extends UnicastRemoteObject implements Philos
 			listPhilosophers.get(i).setShowOutput(isWanted);
 		}
 	}
-	public synchronized void addPhilosopher(Philosopher phil) throws RemoteException{
+	public synchronized void addPhilosopher(PhilosopherImpl phil) throws RemoteException{
 		listPhilosophers.add(phil);
 	}
 	public synchronized void removePhilosopher(Philosopher phil) throws RemoteException{
