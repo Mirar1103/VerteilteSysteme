@@ -90,6 +90,9 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 
 	private void checkPhils(){
 		for (int i =0; i<philIds.size(); i++){
+			while(philLastupdate.get(philIds.get(i))==null){
+				System.out.println("waiting for first update on Philosopher#"+philIds.get(i));
+			}
 			if(System.currentTimeMillis()-philLastupdate.get(philIds.get(i))>TIMEOUT){
 				try {
 					updatePhilosopher(philosophers.get(philIds.get(i)));
@@ -115,6 +118,10 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 
 	private void checkTables(){
 		for (int i =0; i<tableList.size(); i++){
+			while(tableLastUpdate.get(tableList.get(i))==null){
+				System.out.println("waiting for first update on table#"+i);
+			}
+
 			if(System.currentTimeMillis()-tableLastUpdate.get(tableList.get(i))>TIMEOUT){
 				try {
 					updateTable(tableList.get(i));
