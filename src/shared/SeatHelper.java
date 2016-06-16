@@ -8,12 +8,24 @@ import java.util.List;
  * Created by Maximilian on 01.06.2016.
  */
 public class SeatHelper {
+    /**
+     * the table new seats are placed at.
+     */
     private final Table table;
 
+    /**
+     * creataes anew SeatHelper.
+     * @param table
+     */
     public SeatHelper(Table table){
         this.table = table;
     }
 
+    /**
+     * creates a number of new Seats.
+     * @param numberOfSeats
+     * @throws RemoteException
+     */
     public synchronized void addSeat(int numberOfSeats) throws RemoteException {
         if(numberOfSeats < 1)
             throw new IllegalArgumentException("Number has to be greater than zero.");
@@ -25,6 +37,11 @@ public class SeatHelper {
         }
     }
 
+    /**
+     * removes a number of seats from the table.
+     * @param numberOfSeats
+     * @throws RemoteException
+     */
     public synchronized void removeSeat(int numberOfSeats) throws RemoteException {
         if(numberOfSeats < 1)
             throw new IllegalArgumentException("Wrong number of Seats for removing.");

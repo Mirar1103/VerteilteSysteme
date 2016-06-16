@@ -16,6 +16,7 @@ import java.rmi.registry.Registry;
 public class PhilosopherMain {
 
 	/**
+	 * adds Philosophers to the Registry.
 	 * @param args
 	 */
 	public static void main(String[] args) throws RemoteException{

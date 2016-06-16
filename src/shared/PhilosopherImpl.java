@@ -78,7 +78,16 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 		totalEaten = 0;
 		
 	}
-	
+
+	/**
+	 * creates a new Philosopher with most varaibles preset.
+	 * @param table
+	 * @param hunger
+	 * @param philosopherID
+	 * @param totalEaten
+	 * @param banned
+     * @throws RemoteException
+     */
 	public PhilosopherImpl(Table table, int hunger, String philosopherID, int totalEaten, boolean banned) throws RemoteException{
 		super();
 		this.table = table;
@@ -352,25 +361,27 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 			MONITOR.notify();
 		}
 	}
-	
+	@Override
 	public String getID()throws RemoteException{
 		return this.philosopherID;
 	}
-	
+	@Override
 	public Thread getThread()throws RemoteException{
 		return currentThread;
 	}
-	
+	@Override
 	public void kill()throws RemoteException, InterruptedException{
 		throw new InterruptedException("Kill this Philosopher");
 	}
-	
+	@Override
 	public int getHunger()throws RemoteException{
 		return hunger;
 	}
+	@Override
 	public void setShowOutput(boolean isWanted) throws RemoteException{
 		showOutput = isWanted;
 	}
+	@Override
 	public void softKill() throws RemoteException{
 		isntStopped = false;
 		System.out.println("SET THE FLAG!!!" + isntStopped + " # " +getID());
@@ -380,15 +391,11 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	public void ban() throws RemoteException {
 		this.banned=true;
 	}
-
+	@Override
 	public boolean isAbleForRemoving() throws RemoteException{
 		return ableForRemoving;
 	}
-	
-	public void setNewThread(Thread newThread){
-		this.currentThread = newThread;
-	}
-
+	@Override
 	public void setMaster(Master master){
 		this.master = master;
 	}

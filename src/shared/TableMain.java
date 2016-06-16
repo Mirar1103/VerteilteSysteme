@@ -17,7 +17,14 @@ import java.rmi.server.UnicastRemoteObject;
  * 29.05.2016
  */
 public class TableMain {
-	
+	/**
+	 * registers a new Table at the registry.
+	 * @param master
+	 * @param port
+	 * @param debugging
+	 * @throws RemoteException
+	 * @throws UnknownHostException
+     */
 	public void registerTableToMaster(Master master, int port, boolean debugging) throws RemoteException, UnknownHostException{
 		final InetAddress me = InetAddress.getLocalHost();
 	    final String hostAddress = me.getHostAddress();

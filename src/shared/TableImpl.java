@@ -368,23 +368,24 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 			System.out.println("TablePart #" + this.id + " received an existing philosopher " + philID);
 		}
 	}
-
+	@Override
 	public void setShowOutput(boolean isWanted)throws RemoteException{
 		showOutput = isWanted;
 	}
-
+	@Override
 	public int getSeatPosition(Seat seat) throws RemoteException{
 		return seatList.indexOf(seat);
 	}
+	@Override
 	public void setPhilHelp(PhilosopherHelper philHelp) throws RemoteException{
 		this.philHelp = philHelp;
 	}
-	
+	@Override
 	public PhilosopherHelper getPhilHelp() throws RemoteException {
 		return philHelp;
 	}
-	
-	
+
+	@Override
 	public void removePhilosopher(Philosopher phil) throws RemoteException {
 		boolean philRemoved = false;
 		while (!philRemoved) {
