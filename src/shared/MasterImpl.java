@@ -129,5 +129,20 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 	private void restartTable(Table table) {
 		//create table and restart, but where??
 	}
+	private void removePhilosopher(Philosopher phil) throws RemoteException {
+		philIds.remove(phil.getID());
+		philHunger.remove(phil.getID());
+		philBanned.remove(phil.getID());
+		philEaten.remove(phil.getID());
+		philosophers.remove(phil.getID());
+		philLastupdate.remove(phil.getID());
+	}
+	private void removeTable(Table table) throws RemoteException {
+		tableLastUpdate.remove(table);
+		tableNextTable.remove(table);
+		tableSemaphores.remove(table);
+		tableSeats.remove(table);
+		tableList.remove(table);
+	}
 
 }
