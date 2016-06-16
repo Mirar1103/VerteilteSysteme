@@ -14,5 +14,9 @@ public interface Master extends Remote{
 	 */
 	void registerTable(Table table) throws RemoteException;
 
+	void registerTablemain(TableMain main) throws  RemoteException;
+
+	void registerSeatHelper(SeatHelper seatHelper) throws RemoteException;
+
 
 }

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,16 +13,16 @@ import java.util.Map;
  */
 public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 	private List<Table> tableList = new ArrayList<Table>();
-	private Map<Table, Long> tableLastUpdate;
-	private Map<Table, Integer> tableSeats;
-	private Map<Table, Integer> tableSemaphores;
-	private Map<Table, Table> tableNextTable;
-	private List<String> philIds;
-	private Map<String, Integer> philEaten;
-	private Map<String, Integer> philHunger;
-	private Map<String, Boolean> philBanned;
-	private Map<String, Philosopher> philosophers;
-	private Map<String, Long> philLastupdate;
+	private Map<Table, Long> tableLastUpdate = new HashMap<>();
+	private Map<Table, Integer> tableSeats = new HashMap<>();
+	private Map<Table, Integer> tableSemaphores = new HashMap<>();
+	private Map<Table, Table> tableNextTable = new HashMap<>();
+	private List<String> philIds  = new ArrayList<>();
+	private Map<String, Integer> philEaten = new HashMap<>();
+	private Map<String, Integer> philHunger = new HashMap<>();
+	private Map<String, Boolean> philBanned = new HashMap<>();
+	private Map<String, Philosopher> philosophers = new HashMap<>();
+	private Map<String, Long> philLastupdate = new HashMap<>();
 
 	private final static long TIMEOUT = 200000;
     /**
@@ -53,9 +54,20 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
         else
         {
             tableList.add(table);
+			updateTable(table);
         }
 
     }
+
+	@Override
+	public void registerTablemain(TableMain main) throws RemoteException {
+		//dummy
+	}
+
+	@Override
+	public void registerSeatHelper(SeatHelper seatHelper) throws RemoteException {
+		//dummy
+	}
 
 	public void updatePhilosopher(Philosopher phil)throws RemoteException{
 		if(philIds.contains(phil.getID())){
@@ -127,7 +139,11 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 	}
 
 	private void restartTable(Table table) {
-		//create table and restart, but where??
+		if(tableList.size()>1){
+			//add seats to another table
+		} else {
+			//create table and seats, at available main;
+		}
 	}
 	private void removePhilosopher(Philosopher phil) throws RemoteException {
 		philIds.remove(phil.getID());
