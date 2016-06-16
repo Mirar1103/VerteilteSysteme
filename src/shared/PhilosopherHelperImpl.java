@@ -22,7 +22,7 @@ public class PhilosopherHelperImpl implements PhilosopherHelper, Serializable{
 	
 	public PhilosopherHelperImpl(Table table) throws RemoteException {
 		this.table = table;
-		//table.setPhilHelp(this);
+		table.setPhilHelp(this);
 	}
 	
 	public synchronized void addPhilosopher(int numberOfPhil, boolean debugging) throws RemoteException{
