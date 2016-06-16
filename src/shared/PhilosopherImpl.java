@@ -367,7 +367,12 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	public void softKill() throws RemoteException{
 		isntStopped = false;
 	}
-	
+
+	@Override
+	public void ban() throws RemoteException {
+		this.banned=true;
+	}
+
 	public boolean isAbleForRemoving() throws RemoteException{
 		return ableForRemoving;
 	}

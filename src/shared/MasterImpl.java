@@ -30,6 +30,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 
 
 	private final static long TIMEOUT = 200000;
+	private final static int MAX_EAT_MORE = 10;
 	/**
 	 * @throws RemoteException
 	 */
@@ -94,6 +95,17 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 					updatePhilosopher(philosophers.get(philIds.get(i)));
 				} catch (RemoteException e) {
 					restartPhil(philIds.get(i));
+				}
+			}
+			for (int checked =0; checked<philEaten.size(); checked++){
+				if(
+						(philEaten.get(philIds.get(i))-MAX_EAT_MORE)>philEaten.get(philIds.get(checked))
+						){
+					try {
+						philosophers.get(philIds.get(i)).ban();
+					} catch (RemoteException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 
