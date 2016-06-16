@@ -19,10 +19,12 @@ public class PhilosopherHelperImpl implements PhilosopherHelper, Serializable{
 	private static final long serialVersionUID = 1L;
 	private final Table table;
 	private List<PhilosopherImpl> listPhilosophers = new ArrayList<PhilosopherImpl>();
+	private final Master master;
 	
-	public PhilosopherHelperImpl(Table table) throws RemoteException {
+	public PhilosopherHelperImpl(Table table, Master master) throws RemoteException {
 		this.table = table;
 		table.setPhilHelp(this);
+		this.master = master;
 	}
 	
 	public synchronized void addPhilosopher(int numberOfPhil, boolean debugging) throws RemoteException{
@@ -33,6 +35,7 @@ public class PhilosopherHelperImpl implements PhilosopherHelper, Serializable{
 			PhilosopherImpl phil = new PhilosopherImpl(-1);
 			phil.setTable(table);
 			phil.setShowOutput(debugging);
+			phil.setMaster(master);
 			new Thread(phil).start();
 			listPhilosophers.add(phil);
 		}

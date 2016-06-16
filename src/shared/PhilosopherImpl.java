@@ -33,6 +33,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	private boolean isntStopped = true;
 	private boolean ableForRemoving = true;
 	private Thread currentThread;
+	private Master master;
 
 	private final static int DEFAULT_HUNGER = 80;
 	private final static int THINK_TIME = 3000;
@@ -98,6 +99,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	public void run(){
 		try{
 			while(!Thread.currentThread().isInterrupted()&&isntStopped){
+				master.updatePhilosopher(this);
 				while(table == null){
 					if(showOutput) {
 						System.out.println("Philosopher " + philosopherID + " waiting for table.");
@@ -382,5 +384,9 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	
 	public void setNewThread(Thread newThread){
 		this.currentThread = newThread;
+	}
+
+	public void setMaster(Master master){
+		this.master = master;
 	}
 }

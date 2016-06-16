@@ -27,7 +27,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 	private Map<String, Philosopher> philosophers = new HashMap<>();
 	private Map<String, Long> philLastupdate = new HashMap<>();
 	private SeatHelper seatHelper;
-
+	private int lastTestedTable;
 
 	private final static long TIMEOUT = 10000;
 	private final static int MAX_EAT_MORE = 10;
@@ -118,6 +118,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 
 	private void checkTables(){
 		for (int i =0; i<tableList.size(); i++){
+			lastTestedTable=i;
 			while(tableLastUpdate.get(tableList.get(i))==null){
 				System.out.println("waiting for first update on table#"+i);
 			}
@@ -134,7 +135,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 
 	}
 
-	private void updateTable(Table table) throws RemoteException {
+	public void updateTable(Table table) throws RemoteException {
 		if(tableLastUpdate.containsKey(table)) {
 			tableSeats.replace(table, table.getNumberOfSeats());
 			tableSemaphores.replace(table, table.getNumberOfSemaphores());
@@ -159,9 +160,12 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 
 
 	private void restartTable(Table table) {
+		if(table==null){
+			System.out.println("given table was null");
+		}
 		if(tableList.size()>1){
 			try {
-				seatHelper.addSeat(tableSeats.get(table));
+				seatHelper.addSeat(tableSeats.get(tableList.get(lastTestedTable)));
 			} catch (RemoteException e) {
 				e.printStackTrace();
 			}

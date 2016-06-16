@@ -15,5 +15,7 @@ public interface Master extends Remote{
 	void registerSeatHelper(SeatHelper seatHelper) throws RemoteException;
 	void removePhilosopher(Philosopher phil) throws RemoteException;
 	void removeTable(Table table) throws RemoteException;
+	void updatePhilosopher(Philosopher phil)throws RemoteException;
+	void updateTable(Table table) throws RemoteException;
 
 }
