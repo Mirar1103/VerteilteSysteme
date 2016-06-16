@@ -31,6 +31,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	private Seat currentSeat;
 	private boolean showOutput;
 	private boolean isntStopped = true;
+	private boolean ableForRemoving = true;
 
 	private final static int DEFAULT_HUNGER = 80;
 	private final static int THINK_TIME = 3000;
@@ -106,11 +107,13 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 				think();
 				int random  = Math.abs(new Random().nextInt()% 100);
 				if(random < hunger){
+					ableForRemoving = false;
 					if(!eat()){
 						if(showOutput) 
 							System.out.println("Philosopher " + philosopherID + " gets hungry and will try to eat.");
 						table.movePhilosopher(this);
 					}else{
+						ableForRemoving = true;
 						if((totalEaten % MAX_EATEN) == 0)
 						goToBed();
 					}
@@ -124,6 +127,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println("END - " + isntStopped);
 	}
 	
 	/**
@@ -179,7 +183,6 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 			}
 			
 		}
-		
 		//waiting for a seat to sit down
 		if(showOutput) {
 			System.out.println("Philosopher " + philosopherID + "is waiting for a seat.");
@@ -352,7 +355,6 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	}
 	
 	public void kill()throws RemoteException, InterruptedException{
-		isntStopped=false;
 		throw new InterruptedException("Kill this Philosopher");
 	}
 	
@@ -364,5 +366,9 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	}
 	public void softKill() throws RemoteException{
 		isntStopped = false;
+	}
+	
+	public boolean isAbleForRemoving() throws RemoteException{
+		return ableForRemoving;
 	}
 }

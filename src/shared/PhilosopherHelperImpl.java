@@ -42,10 +42,10 @@ public class PhilosopherHelperImpl extends UnicastRemoteObject implements Philos
 		
 		for(int i = 0; i < numberOfPhil; i++){
 			Philosopher phil = listPhilosophers.remove(0);
-			phil.softKill();
 			table.removePhilosopher(phil);
 			System.out.println("Removed Philosopher total #"+listPhilosophers.size());
-
+			System.out.println("NAMEEEEE #"+phil.getID());
+			phil.softKill();
 		}
 	}
 	public void setDebugging(boolean isWanted) throws RemoteException {
