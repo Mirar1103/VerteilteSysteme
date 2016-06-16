@@ -99,7 +99,6 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	public void run(){
 		try{
 			while(!Thread.currentThread().isInterrupted()&&isntStopped){
-				master.updatePhilosopher(this);
 				while(table == null){
 					if(showOutput) {
 						System.out.println("Philosopher " + philosopherID + " waiting for table.");
@@ -107,7 +106,11 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 						MONITOR.wait();
 				}
 				
-				System.out.println("INSIDE - " + isntStopped);
+				/*System.out.println("INSIDE - " + isntStopped);
+				if(master == null)
+					System.out.println("MASTER == NULL");
+				else
+					master.updatePhilosopher(this); */
 				think();
 				int random  = Math.abs(new Random().nextInt()% 100);
 				if(random < hunger){
