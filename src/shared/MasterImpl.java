@@ -34,6 +34,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 			checkPhils();
 			//checkSeatsandForks
 			//checkEaten
+			
 		}
 	}
 

@@ -57,6 +57,9 @@ public class Main {
 				tableMain.registerTableToMaster(master, Integer.parseInt(port), debugging);
 				table = (Table) LocateRegistry.getRegistry(Integer.parseInt(port)).lookup("table");
 				
+				if(phil == null)
+					phil = new PhilosopherHelperImpl(table);
+				
 			}
 			//create Philosopher
 			else if(input.equalsIgnoreCase("create Philosopher")){

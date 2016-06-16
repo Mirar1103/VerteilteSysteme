@@ -65,7 +65,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 		} catch (UnknownHostException e) {
 			me = null;
 		}
-		this.philosopherID = nextId.incrementAndGet()+ "@"+me.getHostAddress();
+		this.philosopherID = String.valueOf(nextId.incrementAndGet())+ "#"+me.getHostAddress();
 		if(hunger == -1)
 			this.hunger = DEFAULT_HUNGER;
 		else
@@ -83,6 +83,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 		this.hunger = hunger;
 		this.philosopherID = philosopherID;
 		this.banned = banned;
+		showOutput = true;
 		currentSeat = null;
 	}
 

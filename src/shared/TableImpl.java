@@ -85,8 +85,12 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		int offsetSeatSemaphore;
 		int randomSemaphore = Math.abs(new Random().nextInt()% getNumberOfSemaphores());
 		
-		if(!philosophers.contains(owner))
-			philosophers.add(owner);
+		for(int i = 0 ; i < philosophers.size(); i++){
+			if(!philosophers.get(i).getID().equals(owner.getID()))
+				philosophers.add(owner);
+		}
+		
+			
 		
 		for(int index = 0; index < getNumberOfSemaphores(); index++){
 			acquiredSemaphore = (index+randomSemaphore)%getNumberOfSemaphores();
@@ -223,6 +227,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	@Override
 	public void registerNewForkAndSeat(Fork fork, Seat seat) throws RemoteException {
 		boolean added = false;
+		System.out.println("NUMBER PHIL #" + philosophers.size());
 		if(philosophers.size() > 0){
 			while(!added){
 				if(!forkList.get(forkList.size()-1).hasOwner() && !seatList.get(seatList.size()-1).hasOwner()){
@@ -334,7 +339,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		nextTable.recreatePhilosopher(hunger, philID, meals, banned);
 		philosophers.remove(phil);
 		philHelp.removePhilosopher(phil);
-		phil.kill();		
+		phil.kill();
 	}
 	
 	/**
@@ -353,6 +358,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 			System.out.println("TablePart #" + this.id + " received an existing philosopher " + philID);
 		}
 		philHelp.addPhilosopher(phil);
+		System.out.println("FINSISH RECREATE");
 	}
 
 	public void setShowOutput(boolean isWanted)throws RemoteException{
@@ -366,6 +372,6 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		this.philHelp = philHelp;
 	}
 	public void removePhilosopher(Philosopher phil) throws RemoteException{
-		philosophers.remove(philosophers.indexOf(phil));
+		philosophers.remove(phil);
 	}
 }

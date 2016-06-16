@@ -5,6 +5,7 @@ package shared;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,11 +16,11 @@ import java.util.List;
  */
 public class PhilosopherHelperImpl extends UnicastRemoteObject implements PhilosopherHelper{
 	private final Table table;
-	private List<Philosopher> listPhilosophers = new LinkedList<Philosopher>();
+	private List<Philosopher> listPhilosophers = new ArrayList<Philosopher>();
 	
 	public PhilosopherHelperImpl(Table table) throws RemoteException {
 		this.table = table;
-			table.setPhilHelp(this);
+		table.setPhilHelp(this);
 	}
 	
 	public synchronized void addPhilosopher(int numberOfPhil, boolean debugging) throws RemoteException{
@@ -56,6 +57,6 @@ public class PhilosopherHelperImpl extends UnicastRemoteObject implements Philos
 		listPhilosophers.add(phil);
 	}
 	public void removePhilosopher(Philosopher phil) throws RemoteException{
-		listPhilosophers.remove(listPhilosophers.indexOf(phil));
+		listPhilosophers.remove(phil);
 	}
 }
