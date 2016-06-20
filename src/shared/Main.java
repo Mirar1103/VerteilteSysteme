@@ -6,9 +6,13 @@ package shared;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.registry.LocateRegistry;
+import java.util.Enumeration;
 
 /**
  * @author Dominik
@@ -16,6 +20,8 @@ import java.rmi.registry.LocateRegistry;
  * 29.05.2016
  */
 public class Main {
+	
+	private static String ip="";
 	/**
 	 * this method starts the text based input for the user to add objekts.
 	 * @param args
@@ -39,10 +45,13 @@ public class Main {
 
 		System.out.println("create new Master? (J/N)");
 		if(br.readLine().equalsIgnoreCase("J")){
+			getIP();
+			System.out.println("Which IP do you want to use?");
+			ip = br.readLine();
 			System.out.println("Which Port?");
 			String port;
 			port = br.readLine();
-			MasterMain.main(port);
+			MasterMain.main(port, ip);
 			master = (Master) LocateRegistry.getRegistry(Integer.parseInt(port)).lookup("master");
 		}else{
 			master = selectMaster(br);
@@ -53,9 +62,14 @@ public class Main {
 			//create Table
 			if(input.equalsIgnoreCase("create Table")){
 				String port;
+				if(ip.equals("")){
+					getIP();
+					System.out.println("Which IP do you want to use?");
+					ip = br.readLine();
+				}
 				System.out.println("Which Port?");
 				port = br.readLine();
-				tableMain.registerTableToMaster(master, Integer.parseInt(port), debugging);
+				tableMain.registerTableToMaster(master, Integer.parseInt(port), ip, debugging);
 				table = (Table) LocateRegistry.getRegistry(Integer.parseInt(port)).lookup("table");
 				
 				if(phil == null){
@@ -72,7 +86,7 @@ public class Main {
 				int numberOfPhil;
 				System.out.println("Number of Philosophers to add: ");
 				numberOfPhil = Integer.parseInt(br.readLine());
-				phil.addPhilosopher(numberOfPhil, debugging);
+				phil.addPhilosopher(numberOfPhil, debugging, ip);
 			}
 			//remove Philosopher
 			else if(input.equalsIgnoreCase("remove Philosopher")){
@@ -150,6 +164,7 @@ public class Main {
 		System.out.println("No Table found on this Server, please enter an adress for the Table.");
 		System.out.println("Host Address: ");
 		String host = br.readLine();
+		ip = host;
 		System.out.println("Port: ");
 		String port = br.readLine();
 		return (Table) Naming.lookup("//"+host+":"+port+"/table");
@@ -170,6 +185,29 @@ public class Main {
 		System.out.println("Port: ");
 		String port = br.readLine();
 		return (Master) Naming.lookup("//"+host+":"+port+"/master");
+	}
+	
+	private static void getIP(){
+		String ip = "";
+	    try {
+	        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+	        while (interfaces.hasMoreElements()) {
+	            NetworkInterface iface = interfaces.nextElement();
+	            // filters out 127.0.0.1 and inactive interfaces
+	            if (iface.isLoopback() || !iface.isUp())
+	                continue;
+
+	            Enumeration<InetAddress> addresses = iface.getInetAddresses();
+	            while(addresses.hasMoreElements()) {
+	                InetAddress addr = addresses.nextElement();
+	                ip = addr.getHostAddress();
+	                if(!ip.contains(":"))
+	                	System.out.println(iface.getDisplayName() + " " + ip);
+	            }
+	        }
+	    } catch (SocketException e) {
+	        throw new RuntimeException(e);
+	    }
 	}
 
 }

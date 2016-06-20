@@ -43,12 +43,12 @@ public class PhilosopherHelperImpl implements PhilosopherHelper, Serializable{
 	}
 
 	@Override
-	public synchronized void addPhilosopher(int numberOfPhil, boolean debugging) throws RemoteException{
+	public synchronized void addPhilosopher(int numberOfPhil, boolean debugging, String ip) throws RemoteException{
 		if(numberOfPhil < 1)
 			throw new IllegalArgumentException("Number has to be greater than zero.");
 		
 		for(int i = 0; i < numberOfPhil; i++){
-			PhilosopherImpl phil = new PhilosopherImpl(-1);
+			PhilosopherImpl phil = new PhilosopherImpl(-1, ip);
 			phil.setTable(table);
 			phil.setShowOutput(debugging);
 			phil.setMaster(master);
@@ -66,8 +66,14 @@ public class PhilosopherHelperImpl implements PhilosopherHelper, Serializable{
 			table.removePhilosopher(phil);
 			System.out.println("Removed Philosopher total #"+listPhilosophers.size());
 			System.out.println("NAMEEEEE #"+phil.getID());
+			System.out.println("TABLE #" + table);
 			master.removePhilosopher(phil);
 			phil.softKill();
+			for(int j = 0; j< listPhilosophers.size(); j++){
+				if (listPhilosophers.get(j).getID().equals(phil.getID()))
+						phil.softKill();
+			}
+			
 		}
 	}
 	@Override
@@ -78,6 +84,8 @@ public class PhilosopherHelperImpl implements PhilosopherHelper, Serializable{
 	}
 	@Override
 	public synchronized void addPhilosopher(PhilosopherImpl phil) throws RemoteException{
+		phil.setMaster(master);
+		new Thread(phil).start();
 		listPhilosophers.add(phil);
 	}
 	@Override

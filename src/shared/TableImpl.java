@@ -362,7 +362,6 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	public void recreatePhilosopher(int hunger, String philID, int meals, boolean banned) throws RemoteException {
 		PhilosopherImpl phil = new PhilosopherImpl(this, hunger, philID, meals, banned);
 		philosophers.add(phil);
-		new Thread(phil).start();
 		philHelp.addPhilosopher(phil);
 		if(showOutput) {
 			System.out.println("TablePart #" + this.id + " received an existing philosopher " + philID);

@@ -60,7 +60,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	 * @param hunger the value of the hunger percentage
 	 * @throws RemoteException 
 	 */
-	public PhilosopherImpl(int hunger) throws RemoteException{
+	public PhilosopherImpl(int hunger, String ip) throws RemoteException{
 		super();
 		InetAddress me;
 		try {
@@ -68,7 +68,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 		} catch (UnknownHostException e) {
 			me = null;
 		}
-		this.philosopherID = String.valueOf(nextId.incrementAndGet())+ "#"+me.getHostAddress();
+		this.philosopherID = String.valueOf(nextId.incrementAndGet())+ "#"+ip;
 		if(hunger == -1)
 			this.hunger = DEFAULT_HUNGER;
 		else

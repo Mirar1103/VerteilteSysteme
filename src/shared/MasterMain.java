@@ -1,5 +1,6 @@
 package shared;
 
+import java.net.InetAddress;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -15,6 +16,7 @@ public class MasterMain {
      * @throws RemoteException
      */
     public static void main(String... args) throws RemoteException {
+		System.setProperty("java.rmi.server.hostname", args[1]);
         LocateRegistry.createRegistry(Integer.parseInt(args[0]));
         MasterImpl master = new MasterImpl();
         String objName = "master";

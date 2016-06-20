@@ -28,7 +28,7 @@ public interface PhilosopherHelper extends Remote {
      * @param debugging (true == messages are displayed)
      * @throws RemoteException
      */
-    public void addPhilosopher(int numberOfPhil, boolean debugging) throws RemoteException;
+    public void addPhilosopher(int numberOfPhil, boolean debugging, String ip) throws RemoteException;
 
     /**
      * removes a number of Philosophers.
