@@ -60,19 +60,13 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	 * @param hunger the value of the hunger percentage
 	 * @throws RemoteException 
 	 */
-	public PhilosopherImpl(int hunger, String ip) throws RemoteException{
+	public PhilosopherImpl(boolean hunger, String ip) throws RemoteException{
 		super();
-		InetAddress me;
-		try {
-			me = InetAddress.getLocalHost();
-		} catch (UnknownHostException e) {
-			me = null;
-		}
 		this.philosopherID = String.valueOf(nextId.incrementAndGet())+ "#"+ip;
-		if(hunger == -1)
+		if(hunger == false)
 			this.hunger = DEFAULT_HUNGER;
 		else
-			this.hunger = hunger;
+			this.hunger = 100;
 		banned = false;
 		currentSeat = null;
 		totalEaten = 0;
@@ -143,22 +137,28 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("END - " + isntStopped);
+		System.out.println("END - Philosopher " + philosopherID + " died.");
 	}
 	
 	/**
 	 * Philosopher thinks.
 	 * 
 	 * The Thread will sleep for a specific time interval.
+	 * @throws InterruptedException 
+	 * @throws RemoteException 
 	 */
-	private void think(){
-		try {
-			if(showOutput) {
-				System.out.println("Philosopher " + philosopherID + " is thinking.");
+	private void think() throws RemoteException, InterruptedException{
+		if(isntStopped){
+			try {
+				if(showOutput) {
+					System.out.println("Philosopher " + philosopherID + " is thinking.");
+				}
+				Thread.sleep(THINK_TIME);
+			} catch (InterruptedException e) {
+				System.out.println(e.getMessage());
 			}
-			Thread.sleep(THINK_TIME);
-		} catch (InterruptedException e) {
-			System.out.println(e.getMessage());
+		}else{
+			kill();
 		}
 	}
 	
@@ -166,15 +166,21 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	 * Philosopher sleeps.
 	 * 
 	 * The Thread will sleep for a specific time interval.
+	 * @throws InterruptedException 
+	 * @throws RemoteException 
 	 */
-	private void goToBed(){
-		try {
-			if(showOutput) {
-				System.out.println("Philosopher " + philosopherID + " is going to bed.");
+	private void goToBed() throws RemoteException, InterruptedException{
+		if(isntStopped){
+			try {
+				if(showOutput) {
+					System.out.println("Philosopher " + philosopherID + " is going to bed.");
+				}
+				Thread.sleep(SLEEPING_TIME);
+			} catch (InterruptedException e) {
+				System.out.println(e.getMessage());
 			}
-			Thread.sleep(SLEEPING_TIME);
-		} catch (InterruptedException e) {
-			System.out.println(e.getMessage());
+		}else{
+			kill();
 		}
 	}
 	
@@ -384,7 +390,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	@Override
 	public void softKill() throws RemoteException{
 		isntStopped = false;
-		System.out.println("SET THE FLAG!!!" + isntStopped + " # " +getID());
+		System.out.println("Kill # " +getID());
 	}
 
 	@Override

@@ -86,7 +86,12 @@ public class Main {
 				int numberOfPhil;
 				System.out.println("Number of Philosophers to add: ");
 				numberOfPhil = Integer.parseInt(br.readLine());
-				phil.addPhilosopher(numberOfPhil, debugging, ip);
+				System.out.println("Hunger? (J/N)");
+				if(br.readLine().equalsIgnoreCase("J")){
+					phil.addPhilosopher(numberOfPhil, false, debugging, ip);
+				}else{
+					phil.addPhilosopher(numberOfPhil, true, debugging, ip);
+				}
 			}
 			//remove Philosopher
 			else if(input.equalsIgnoreCase("remove Philosopher")){
@@ -98,6 +103,7 @@ public class Main {
 				System.out.println("Number of Philosopher to remove: ");
 				numberOfPhil = Integer.parseInt(br.readLine());
 				phil.removePhilosopher(numberOfPhil, master);
+				//table.removePhilosopher();
 			}
 			//create seats
 			else if(input.equalsIgnoreCase("create Seat")){

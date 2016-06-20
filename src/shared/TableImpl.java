@@ -30,7 +30,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	private Table nextTable = this;
 	private int id = -1;
 	private boolean showOutput;
-	private PhilosopherHelper philHelp;
+	private PhilosopherHelperImpl philHelp;
 	
 	private final static int MAX_SEATS_SEMAPHORE = 10;
 	private final static int MIN_SEMAPHORES = 1;
@@ -86,12 +86,17 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		int offsetSeatSemaphore;
 		int randomSemaphore = Math.abs(new Random().nextInt()% getNumberOfSemaphores());
 		
-		for(int i = 0 ; i < philosophers.size(); i++){
-			if(philosophers.get(i).getID().equals(owner.getID()))
-				philInList = true;
-			if(!philInList)	
-				philosophers.add(owner);
-			break;
+		if(philosophers.size() == 0)
+			philosophers.add(owner);
+		else {
+			for(int i = 0 ; i < philosophers.size(); i++){
+				if(philosophers.get(i).getID().equals(owner.getID()))
+					philInList = true;
+				if(!philInList){	
+					philosophers.add(owner);
+				}
+				break;
+			}
 		}
 		
 			
@@ -347,7 +352,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		boolean banned = phil.getBanned();
 		nextTable.recreatePhilosopher(hunger, philID, meals, banned);
 		philosophers.remove(phil);
-		philHelp.removePhilosopher(phil);
+		//philHelp.removePhilosopher(phil);
 		phil.kill();
 	}
 	
@@ -362,11 +367,22 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	public void recreatePhilosopher(int hunger, String philID, int meals, boolean banned) throws RemoteException {
 		PhilosopherImpl phil = new PhilosopherImpl(this, hunger, philID, meals, banned);
 		philosophers.add(phil);
-		philHelp.addPhilosopher(phil);
+		new Thread(phil).start();
+		//philHelp.addPhilosopher(phil);
 		if(showOutput) {
 			System.out.println("TablePart #" + this.id + " received an existing philosopher " + philID);
 		}
 	}
+	
+	public void createPhilosopher(boolean hunger, boolean debugging, String ip) throws RemoteException{
+		PhilosopherImpl phil = new PhilosopherImpl(hunger, ip);
+		phil.setTable(this);
+		phil.setShowOutput(debugging);
+		philosophers.add(phil);
+		//phil.setMaster(master);
+		new Thread(phil).start();
+	}
+	
 	@Override
 	public void setShowOutput(boolean isWanted)throws RemoteException{
 		showOutput = isWanted;
@@ -376,23 +392,19 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		return seatList.indexOf(seat);
 	}
 	@Override
-	public void setPhilHelp(PhilosopherHelper philHelp) throws RemoteException{
+	public void setPhilHelp(PhilosopherHelperImpl philHelp) throws RemoteException{
 		this.philHelp = philHelp;
 	}
 	@Override
-	public PhilosopherHelper getPhilHelp() throws RemoteException {
+	public PhilosopherHelperImpl getPhilHelp() throws RemoteException {
 		return philHelp;
 	}
 
 	@Override
-	public void removePhilosopher(Philosopher phil) throws RemoteException {
-		boolean philRemoved = false;
-		while (!philRemoved) {
-			if (phil.isAbleForRemoving()) {
-				philosophers.remove(phil);
-				philRemoved = true;
-			}
-		}
+	public void removePhilosopher() throws RemoteException {
+		Philosopher phil = philosophers.remove(philosophers.size()-1);
+		//master.removePhilosopher(phil);
+		phil.softKill();
 	}
 	
 }

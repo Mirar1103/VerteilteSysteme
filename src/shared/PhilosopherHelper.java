@@ -9,26 +9,12 @@ import java.rmi.RemoteException;
 public interface PhilosopherHelper extends Remote {
 
     /**
-     * adds a Philosopher to the tracked list of Philosophers.
-     * @param phil
-     * @throws RemoteException
-     */
-    public void addPhilosopher(PhilosopherImpl phil) throws RemoteException;
-
-    /**
-     * removes a certain Philosopher from the list of tracked Philosophers.
-     * @param phil
-     * @throws RemoteException
-     */
-    public void removePhilosopher(Philosopher phil)throws RemoteException;
-
-    /**
      * creates a number of new Philosophers with their textoutpu showing or not based on the debugging booolean.
      * @param numberOfPhil
      * @param debugging (true == messages are displayed)
      * @throws RemoteException
      */
-    public void addPhilosopher(int numberOfPhil, boolean debugging, String ip) throws RemoteException;
+    public void addPhilosopher(int numberOfPhil, boolean hunger, boolean debugging, String ip) throws RemoteException;
 
     /**
      * removes a number of Philosophers.

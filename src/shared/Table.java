@@ -138,19 +138,22 @@ public interface Table extends Remote{
 	 * @param philHelp
 	 * @throws RemoteException
      */
-	public void setPhilHelp(PhilosopherHelper philHelp) throws RemoteException;
+	public void setPhilHelp(PhilosopherHelperImpl philHelp) throws RemoteException;
 
 	/**
 	 * reutrns the PhilosopherHelper this table works with.
 	 * @return
 	 * @throws RemoteException
      */
-	public PhilosopherHelper getPhilHelp() throws RemoteException;
+	public PhilosopherHelperImpl getPhilHelp() throws RemoteException;
 
 	/**
 	 * removes a Philosopher form this table.
 	 * @param phil
 	 * @throws RemoteException
      */
-	public void removePhilosopher(Philosopher phil) throws RemoteException;
+	public void removePhilosopher() throws RemoteException;
+	
+	public void createPhilosopher(boolean hunger, boolean debugging, String ip) throws RemoteException;
+	
 }
