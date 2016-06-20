@@ -156,4 +156,6 @@ public interface Table extends Remote{
 	
 	public void createPhilosopher(boolean hunger, boolean debugging, String ip) throws RemoteException;
 	
+	public void setMaster(Master master) throws RemoteException;
+	
 }

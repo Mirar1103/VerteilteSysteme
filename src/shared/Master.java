@@ -21,7 +21,7 @@ public interface Master extends Remote{
 	 * @param seatHelper
 	 * @throws RemoteException
      */
-	void registerSeatHelper(SeatHelper seatHelper) throws RemoteException;
+	//void registerSeatHelper(SeatHelper seatHelper) throws RemoteException;
 
 	/**
 	 * removes a philosopher from the list of tracked Philosophers.
@@ -50,5 +50,7 @@ public interface Master extends Remote{
 	 * @throws RemoteException
      */
 	void updateTable(Table table) throws RemoteException;
+	
+	void printResult() throws RemoteException;
 
 }
