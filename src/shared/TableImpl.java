@@ -31,6 +31,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	private int id = -1;
 	private boolean showOutput;
 	private PhilosopherHelperImpl philHelp;
+	private Master master;
 	
 	private final static int MAX_SEATS_SEMAPHORE = 10;
 	private final static int MIN_SEMAPHORES = 1;
@@ -382,7 +383,12 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		//phil.setMaster(master);
 		new Thread(phil).start();
 	}
-	
+
+	@Override
+	public void setMaster(Master master) throws RemoteException {
+		this.master = master;
+	}
+
 	@Override
 	public void setShowOutput(boolean isWanted)throws RemoteException{
 		showOutput = isWanted;
@@ -405,6 +411,13 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		Philosopher phil = philosophers.remove(philosophers.size()-1);
 		//master.removePhilosopher(phil);
 		phil.softKill();
+	}
+
+	private void updateAll() throws RemoteException {
+		master.updateTable(this);
+		for(int i =0; i<philosophers.size(); i++){
+			master.updatePhilosopher(philosophers.get(i));
+		}
 	}
 	
 }

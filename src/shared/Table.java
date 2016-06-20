@@ -149,11 +149,12 @@ public interface Table extends Remote{
 
 	/**
 	 * removes a Philosopher form this table.
-	 * @param phil
 	 * @throws RemoteException
      */
 	public void removePhilosopher() throws RemoteException;
 	
 	public void createPhilosopher(boolean hunger, boolean debugging, String ip) throws RemoteException;
+
+	public void setMaster(Master master) throws RemoteException;
 	
 }
