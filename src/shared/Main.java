@@ -91,9 +91,9 @@ public class Main {
 				numberOfPhil = Integer.parseInt(br.readLine());
 				System.out.println("Hunger? (J/N)");
 				if(br.readLine().equalsIgnoreCase("J")){
-					phil.addPhilosopher(numberOfPhil, false, debugging, ip);
-				}else{
 					phil.addPhilosopher(numberOfPhil, true, debugging, ip);
+				}else{
+					phil.addPhilosopher(numberOfPhil, false, debugging, ip);
 				}
 				if(!debugging){
 					try {

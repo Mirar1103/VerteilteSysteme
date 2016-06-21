@@ -63,7 +63,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	public PhilosopherImpl(boolean hunger, String ip) throws RemoteException{
 		super();
 		this.philosopherID = String.valueOf(nextId.incrementAndGet())+ "#"+ip;
-		if(hunger == false)
+		if(!hunger)
 			this.hunger = DEFAULT_HUNGER;
 		else
 			this.hunger = 100;
