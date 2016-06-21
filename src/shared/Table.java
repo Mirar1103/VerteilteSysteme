@@ -5,6 +5,7 @@ package shared;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.List;
 
 /**
  * @author Dominik Ernsberger
@@ -156,7 +157,7 @@ public interface Table extends Remote{
 	public void createPhilosopher(boolean hunger, boolean debugging, String ip) throws RemoteException;
 
 	public void setMaster(Master master) throws RemoteException;
-	
-	public void setMaster(Master master) throws RemoteException;
+	public List<Philosopher> getPhilosophers() throws RemoteException;
+
 	
 }

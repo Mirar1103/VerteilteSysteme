@@ -28,6 +28,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 	private Map<String, Philosopher> philosophers = new HashMap<>();
 	private Map<String, Long> philLastupdate = new HashMap<>();
 	private SeatHelper seatHelper = new SeatHelper(null);
+	private Map<Table, List<Philosopher>> philsAtTable = new HashMap<>();
 	private int lastTestedTable;
 
 	private final static long TIMEOUT = 2000;
@@ -46,7 +47,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 	public void run(){
 		while(true) {
 			checkTables();
-			checkPhils();
+			//checkPhils();
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
@@ -159,11 +160,13 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 			tableSeats.replace(table, table.getNumberOfSeats());
 			tableSemaphores.replace(table, table.getNumberOfSemaphores());
 			tableNextTable.replace(table, table.getNextTable());
+			philsAtTable.replace(table, table.getPhilosophers());
 			tableLastUpdate.replace(table, System.currentTimeMillis());
 		}else{
 			tableSeats.put(table, table.getNumberOfSeats());
 			tableSemaphores.put(table, table.getNumberOfSemaphores());
 			tableNextTable.put(table, table.getNextTable());
+			philsAtTable.put(table, table.getPhilosophers());
 			tableLastUpdate.put(table, System.currentTimeMillis());
 		}
 	}
@@ -192,6 +195,9 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 		if(tableList.size()>1){
 			try {
 				seatHelper.addSeat(tableSeats.get(tableList.get(lastTestedTable)));
+				for(Philosopher phil : philsAtTable.get(tableList.get(lastTestedTable))){
+					tableList.get(0).recreatePhilosopher(phil.getHunger(), phil.getID(), phil.getTotalEatenRounds(), phil.getBanned());
+				}
 				removeTable(table);
 			} catch (RemoteException e) {
 				e.printStackTrace();
@@ -218,6 +224,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 		tableSemaphores.remove(table);
 		tableSeats.remove(table);
 		tableList.remove(table);
+
 	}
 	
 	public void printResult() throws RemoteException{

@@ -24,6 +24,12 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	private List<Fork> forkList;
 	private List<Seat> seatList;
 	private List<Semaphore> semaphoreList;
+
+	@Override
+	public List<Philosopher> getPhilosophers() throws RemoteException{
+		return philosophers;
+	}
+
 	private List<Philosopher> philosophers = Collections.synchronizedList(new ArrayList<Philosopher>());
 	private int seatsPerSemaphore;
 	private int seatsLastSemaphore;
@@ -433,9 +439,6 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 			master.updatePhilosopher(philosophers.get(i));
 		}
 	}
-	
-	public void setMaster(Master master) throws RemoteException{
-		this.master = master;
-	}
+
 	
 }
