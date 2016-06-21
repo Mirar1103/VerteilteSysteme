@@ -11,7 +11,7 @@ public class SeatHelper {
     /**
      * the table new seats are placed at.
      */
-    private final Table table;
+    private Table table;
 
     /**
      * creataes anew SeatHelper.
@@ -49,6 +49,10 @@ public class SeatHelper {
         for(int i = 0; i < numberOfSeats; i++){
             table.removeForkAndSeat();
         }
+    }
+    
+    public void setTable(Table table){
+    	this.table = table;
     }
 }
 

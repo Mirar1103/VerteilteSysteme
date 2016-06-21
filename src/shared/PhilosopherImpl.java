@@ -36,12 +36,12 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	private Master master;
 
 	private final static int DEFAULT_HUNGER = 80;
-	private final static int THINK_TIME = 3000;
-	private final static int BANNED_TIME = 10000;
+	private final static int THINK_TIME = 5;
+	private final static int BANNED_TIME = 25;
 	private final static int MAX_WAIT_FORK = 25;
 	private final static int WAIT_TIME_FORK = 1;
-	private final static int EAT_TIME = 2000;
-	private final static int SLEEPING_TIME = 10000;
+	private final static int EAT_TIME = 1;
+	private final static int SLEEPING_TIME = 10;
 	private final static int MAX_EATEN =3;
 	
 	private final String MONITOR = new String();
@@ -109,11 +109,10 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 						MONITOR.wait();
 				}
 				
-				/*System.out.println("INSIDE - " + isntStopped);
 				if(master == null)
 					System.out.println("MASTER == NULL");
 				else
-					master.updatePhilosopher(this); */
+					master.updatePhilosopher(this);
 				think();
 				int random  = Math.abs(new Random().nextInt()% 100);
 				if(random < hunger){

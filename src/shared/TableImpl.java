@@ -24,7 +24,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	private List<Fork> forkList;
 	private List<Seat> seatList;
 	private List<Semaphore> semaphoreList;
-	private List<Philosopher> philosophers = new ArrayList<Philosopher>();
+	private List<Philosopher> philosophers = Collections.synchronizedList(new ArrayList<Philosopher>());
 	private int seatsPerSemaphore;
 	private int seatsLastSemaphore;
 	private Table nextTable = this;
@@ -90,13 +90,15 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		if(philosophers.size() == 0)
 			philosophers.add(owner);
 		else {
-			for(int i = 0 ; i < philosophers.size(); i++){
-				if(philosophers.get(i).getID().equals(owner.getID()))
-					philInList = true;
-				if(!philInList){	
-					philosophers.add(owner);
+			synchronized(philosophers){
+				for (int i = 0; i < philosophers.size(); i++) {
+					if (philosophers.get(i).getID().equals(owner.getID()))
+						philInList = true;
+					if (!philInList) {
+						philosophers.add(owner);
+					}
+					break;
 				}
-				break;
 			}
 		}
 		
@@ -168,7 +170,12 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		}
 		else
 		{
-			return getNextTable().pickUpFork(0, owner);
+			try{
+				return getNextTable().pickUpFork(0, owner);
+			}catch(RemoteException e){
+				System.out.println("Maybe Table #" + getNextTable().getID() + " down. Wait for Master");
+			}
+			return false;
 		}
 	}
 
@@ -352,8 +359,10 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		int meals = phil.getTotalEatenRounds();
 		boolean banned = phil.getBanned();
 		nextTable.recreatePhilosopher(hunger, philID, meals, banned);
-		philosophers.remove(phil);
-		//philHelp.removePhilosopher(phil);
+		synchronized(philosophers){
+			philosophers.remove(phil);
+		}
+		master.removePhilosopher(phil);
 		phil.kill();
 	}
 	
@@ -367,9 +376,10 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	 */
 	public void recreatePhilosopher(int hunger, String philID, int meals, boolean banned) throws RemoteException {
 		PhilosopherImpl phil = new PhilosopherImpl(this, hunger, philID, meals, banned);
+		phil.setMaster(master);
 		philosophers.add(phil);
+		master.updatePhilosopher(phil);
 		new Thread(phil).start();
-		//philHelp.addPhilosopher(phil);
 		if(showOutput) {
 			System.out.println("TablePart #" + this.id + " received an existing philosopher " + philID);
 		}
@@ -380,7 +390,8 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		phil.setTable(this);
 		phil.setShowOutput(debugging);
 		philosophers.add(phil);
-		//phil.setMaster(master);
+		master.updatePhilosopher(phil);
+		phil.setMaster(master);
 		new Thread(phil).start();
 	}
 
@@ -408,7 +419,10 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 
 	@Override
 	public void removePhilosopher() throws RemoteException {
-		Philosopher phil = philosophers.remove(philosophers.size()-1);
+		Philosopher phil;
+		synchronized(philosophers){
+			phil = philosophers.remove(philosophers.size()-1);
+		}
 		//master.removePhilosopher(phil);
 		phil.softKill();
 	}
@@ -418,6 +432,10 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		for(int i =0; i<philosophers.size(); i++){
 			master.updatePhilosopher(philosophers.get(i));
 		}
+	}
+	
+	public void setMaster(Master master) throws RemoteException{
+		this.master = master;
 	}
 	
 }

@@ -42,6 +42,9 @@ public class Main {
 		if(br.readLine().equalsIgnoreCase("J")) {
 			debugging=true;
 		}
+		else{
+			System.out.println("Welcome in the Time-Mode. Runtime is 60sec after starting the Philosopher");
+		}
 
 		System.out.println("create new Master? (J/N)");
 		if(br.readLine().equalsIgnoreCase("J")){
@@ -92,6 +95,15 @@ public class Main {
 				}else{
 					phil.addPhilosopher(numberOfPhil, true, debugging, ip);
 				}
+				if(!debugging){
+					try {
+						Thread.sleep(60000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					master.printResult();
+				}
 			}
 			//remove Philosopher
 			else if(input.equalsIgnoreCase("remove Philosopher")){
@@ -103,7 +115,6 @@ public class Main {
 				System.out.println("Number of Philosopher to remove: ");
 				numberOfPhil = Integer.parseInt(br.readLine());
 				phil.removePhilosopher(numberOfPhil, master);
-				//table.removePhilosopher();
 			}
 			//create seats
 			else if(input.equalsIgnoreCase("create Seat")){

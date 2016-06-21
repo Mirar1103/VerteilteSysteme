@@ -157,4 +157,6 @@ public interface Table extends Remote{
 
 	public void setMaster(Master master) throws RemoteException;
 	
+	public void setMaster(Master master) throws RemoteException;
+	
 }
