@@ -361,7 +361,8 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		String philID = phil.getID();
 		int meals = phil.getTotalEatenRounds();
 		boolean banned = phil.getBanned();
-		nextTable.recreatePhilosopher(hunger, philID, meals, banned);
+		boolean debug = phil.getDebug();
+		nextTable.recreatePhilosopher(hunger, philID, meals, banned,debug);
 		synchronized(philosophers){
 			philosophers.remove(phil);
 		}
@@ -375,14 +376,16 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	 * @param hunger the hunger value
 	 * @param philID the ID of the philosopher
 	 * @param meals the total number of meals of this phil
-	 * @param banned the banned status 
+	 * @param banned the banned status
+	 * @param debug
 	 */
-	public void recreatePhilosopher(int hunger, String philID, int meals, boolean banned) throws RemoteException {
+	public void recreatePhilosopher(int hunger, String philID, int meals, boolean banned, boolean debug) throws RemoteException {
 		PhilosopherImpl phil = new PhilosopherImpl(this, hunger, philID, meals, banned);
 		phil.setMaster(master);
 		philosophers.add(phil);
 		master.updatePhilosopher(phil,this);
 		updateAll();
+		phil.setShowOutput(debug);
 		new Thread(phil).start();
 		if(showOutput) {
 			System.out.println("TablePart #" + this.id + " received an existing philosopher " + philID);
@@ -396,7 +399,6 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		philosophers.add(phil);
 		master.updatePhilosopher(phil,this);
 		phil.setMaster(master);
-		updateAll();
 		new Thread(phil).start();
 	}
 

@@ -404,4 +404,9 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 	public void setMaster(Master master){
 		this.master = master;
 	}
+
+	@Override
+	public Boolean getDebug() {
+		return showOutput;
+	}
 }

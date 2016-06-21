@@ -115,9 +115,10 @@ public interface Table extends Remote{
 	 * @param id
 	 * @param totalEatenRounds
 	 * @param banned
+	 * @param debug
 	 * @throws RemoteException
      */
-	public void recreatePhilosopher(int hunger, String id, int totalEatenRounds, boolean banned) throws RemoteException;
+	public void recreatePhilosopher(int hunger, String id, int totalEatenRounds, boolean banned, boolean debug) throws RemoteException;
 
 	/**
 	 * sets if messages should be shown

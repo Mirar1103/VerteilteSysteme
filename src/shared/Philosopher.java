@@ -94,4 +94,5 @@ public interface Philosopher extends Remote {
      */
 	public void setMaster(Master master);
 
+	public Boolean getDebug();
 }

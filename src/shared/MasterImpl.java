@@ -25,6 +25,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 	private Map<String, Philosopher> philosophers = new HashMap<>();
 	private Map<String, Long> philLastupdate = new HashMap<>();
 	private Map<String, Table> philosopherTable = new HashMap<>();
+	private Map<String, Boolean> philosopherDebug = new HashMap<>();
 	private SeatHelper seatHelper = new SeatHelper(null);
 	private int lastTestedTable;
 
@@ -81,6 +82,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 			philosophers.replace(phil.getID(), phil);
 			philLastupdate.replace(phil.getID(), System.currentTimeMillis());
 			philosopherTable.replace(phil.getID(), table);
+			philosopherDebug.replace(phil.getID(), phil.getDebug());
 		} else {
 			philIds.add(phil.getID());
 			philEaten.put(phil.getID(), phil.getTotalEatenRounds());
@@ -89,6 +91,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 			philosophers.put(phil.getID(), phil);
 			philLastupdate.put(phil.getID(), System.currentTimeMillis());
 			philosopherTable.put(phil.getID(), table);
+			philosopherDebug.put(phil.getID(), phil.getDebug());
 		}
 	}
 
@@ -151,7 +154,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
      */
 	private  void restartPhil(String philId){
 		try {
-			seatHelper.getTable().recreatePhilosopher(philHunger.get(philId), philId, philEaten.get(philId), philBanned.get(philId));
+			seatHelper.getTable().recreatePhilosopher(philHunger.get(philId), philId, philEaten.get(philId), philBanned.get(philId), philosopherDebug.get(philId));
 		} catch (RemoteException e) {
 			restartTable(tableList.get(0));
 			restartPhil(philId);
@@ -203,6 +206,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 		philosophers.remove(phil.getID());
 		philLastupdate.remove(phil.getID());
 		philosopherTable.remove(phil.getID());
+		philosopherDebug.remove(phil.getID());
 	}
 
 	@Override
