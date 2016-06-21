@@ -171,6 +171,9 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 		} else {
 			if (tableList.size() > 1) {
 				try {
+					if(tableList.size()==2){
+						tableList.get(0).setNextTable(tableList.get(0));
+					}
 					seatHelper.addSeat(tableSeats.get(tableList
 							.get(lastTestedTable)));
 					List<Philosopher> philList = new ArrayList<>();
@@ -180,10 +183,6 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 						}
 					}
 					removeTable(table);
-					if(tableList.size()==1){
-							tableList.get(0).setNextTable(tableList.get(0));
-
-					}
 					for (Philosopher phil : philList) {
 						restartPhil(phil.getID());
 						for (Table checkedTable : tableList) {
