@@ -159,5 +159,8 @@ public interface Table extends Remote{
 	public void setMaster(Master master) throws RemoteException;
 	public List<Philosopher> getPhilosophers() throws RemoteException;
 
-	
+
+	public boolean checkFirstFork(Philosopher phil) throws RemoteException;
+
+	void reLeaseFirstFork(Philosopher phil) throws RemoteException;
 }

@@ -25,11 +25,6 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	private List<Seat> seatList;
 	private List<Semaphore> semaphoreList;
 
-	@Override
-	public List<Philosopher> getPhilosophers() throws RemoteException{
-		return philosophers;
-	}
-
 	private List<Philosopher> philosophers = Collections.synchronizedList(new ArrayList<Philosopher>());
 	private int seatsPerSemaphore;
 	private int seatsLastSemaphore;
@@ -162,6 +157,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 			semaphoreList.get(getNumberOfSemaphores()-1).release();
 		else
 			semaphoreList.get(releasedSemaphore).release();
+
 	}
 	
 	/**
@@ -276,7 +272,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 			
 		seatsLastSemaphore++;
 		System.out.println("seat and fork was added - total #" + getNumberOfSeats());
-		
+		updateAll();
 	}
 
 	/**
@@ -326,6 +322,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 			}
 		}
 		System.out.println("seat and fork was removed- total #" + getNumberOfSeats());
+		updateAll();
 	}
 	
 	/**
@@ -384,7 +381,8 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		PhilosopherImpl phil = new PhilosopherImpl(this, hunger, philID, meals, banned);
 		phil.setMaster(master);
 		philosophers.add(phil);
-		master.updatePhilosopher(phil);
+		master.updatePhilosopher(phil,this);
+		updateAll();
 		new Thread(phil).start();
 		if(showOutput) {
 			System.out.println("TablePart #" + this.id + " received an existing philosopher " + philID);
@@ -396,8 +394,9 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		phil.setTable(this);
 		phil.setShowOutput(debugging);
 		philosophers.add(phil);
-		master.updatePhilosopher(phil);
+		master.updatePhilosopher(phil,this);
 		phil.setMaster(master);
+		updateAll();
 		new Thread(phil).start();
 	}
 
@@ -436,9 +435,27 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	private void updateAll() throws RemoteException {
 		master.updateTable(this);
 		for(int i =0; i<philosophers.size(); i++){
-			master.updatePhilosopher(philosophers.get(i));
+			master.updatePhilosopher(philosophers.get(i), this);
 		}
 	}
 
-	
+	@Override
+	public List<Philosopher> getPhilosophers() throws RemoteException{
+		synchronized (this) {
+			return philosophers;
+		}
+	}
+
+	@Override
+	public boolean checkFirstFork(Philosopher phil) throws RemoteException {
+		return forkList.get(0).getOwner().equals(phil);
+	}
+
+	@Override
+	public void reLeaseFirstFork(Philosopher phil) throws RemoteException {
+		if(checkFirstFork(phil)){
+			forkList.get(0).drop();
+		}
+	}
+
 }

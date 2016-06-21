@@ -112,7 +112,7 @@ public class PhilosopherImpl implements Runnable, Philosopher, Serializable{
 				if(master == null)
 					System.out.println("MASTER == NULL");
 				else
-					master.updatePhilosopher(this);
+					master.updatePhilosopher(this, table);
 				think();
 				int random  = Math.abs(new Random().nextInt()% 100);
 				if(random < hunger){

@@ -74,4 +74,9 @@ public class ForkImpl extends UnicastRemoteObject implements Fork{
 			lock.unlock();
 		}
 	}
+
+	@Override
+	public Philosopher getOwner() {
+		return owner;
+	}
 }
