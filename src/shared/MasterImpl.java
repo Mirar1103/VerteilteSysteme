@@ -173,6 +173,12 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 				try {
 					if(tableList.size()==2){
 						seatHelper.getTable().setNextTable(seatHelper.getTable());
+					}else {
+						try {
+							seatHelper.getTable().setNextTable(table.getNextTable());
+						} catch (RemoteException e) {
+							System.out.print("next table also failed");
+						}
 					}
 					seatHelper.addSeat(tableSeats.get(tableList
 							.get(lastTestedTable)));
