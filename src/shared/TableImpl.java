@@ -188,6 +188,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
      */
 	public void setNextTable(Table table) throws RemoteException{
 		nextTable = table;
+		master.updateTable(this);
 	}
 
 	/**
@@ -272,7 +273,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 			
 		seatsLastSemaphore++;
 		System.out.println("seat and fork was added - total #" + getNumberOfSeats());
-		updateAll();
+		master.updateTable(this);
 	}
 
 	/**
@@ -322,7 +323,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 			}
 		}
 		System.out.println("seat and fork was removed- total #" + getNumberOfSeats());
-		updateAll();
+		master.updateTable(this);
 	}
 	
 	/**
@@ -384,7 +385,6 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		phil.setMaster(master);
 		philosophers.add(phil);
 		master.updatePhilosopher(phil,this);
-		updateAll();
 		phil.setShowOutput(debug);
 		new Thread(phil).start();
 		if(showOutput) {
