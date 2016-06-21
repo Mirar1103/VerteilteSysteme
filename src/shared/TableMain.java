@@ -37,6 +37,7 @@ public class TableMain {
 		TableImpl table = new TableImpl();
 		table.setID(ip.hashCode());
 		table.setShowOutput(debugging);
+		table.setMaster(master);
 		master.registerTable(table);
 		String objName = "table";
 		Table tableStub = (Table) table;

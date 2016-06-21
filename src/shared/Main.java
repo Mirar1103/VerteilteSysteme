@@ -74,7 +74,6 @@ public class Main {
 				port = br.readLine();
 				tableMain.registerTableToMaster(master, Integer.parseInt(port), ip, debugging);
 				table = (Table) LocateRegistry.getRegistry(Integer.parseInt(port)).lookup("table");
-				table.setMaster(master);
 				if(phil == null){
 					phil = new PhilosopherHelperImpl(table, master);
 				}

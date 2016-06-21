@@ -450,7 +450,11 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 
 	@Override
 	public boolean checkFirstFork(Philosopher phil) throws RemoteException {
-		return forkList.get(0).getOwner().equals(phil);
+		Philosopher forkOwner = forkList.get(0).getOwner();
+		if(forkOwner==null){
+			return false;
+		}
+		return forkOwner.equals(phil);
 	}
 
 	@Override
