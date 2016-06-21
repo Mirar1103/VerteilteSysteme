@@ -175,7 +175,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 			try{
 				return getNextTable().pickUpFork(0, owner);
 			}catch(RemoteException e){
-				System.out.println("Maybe Table #" + getNextTable().getID() + " down. Wait for Master");
+				System.out.println("Maybe next Table down. Wait for Master");
 			}
 			return false;
 		}

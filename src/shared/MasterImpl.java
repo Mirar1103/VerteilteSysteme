@@ -151,9 +151,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
      */
 	private  void restartPhil(String philId){
 		try {
-			System.out.println("TRYYY " + philId);
 			seatHelper.getTable().recreatePhilosopher(philHunger.get(philId), philId, philEaten.get(philId), philBanned.get(philId));
-			System.out.println("AFTER TRYY");
 		} catch (RemoteException e) {
 			restartTable(tableList.get(0));
 			restartPhil(philId);
