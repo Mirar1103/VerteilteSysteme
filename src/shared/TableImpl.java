@@ -214,7 +214,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	 * Returns the number of seats on the table.
 	 * @return the number of seats
 	 */
-	public int getNumberOfSeats(){
+	public int getNumberOfSeats() throws RemoteException{
 		if(seatList != null)
 			return seatList.size();
 		else
@@ -225,7 +225,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	 * Returns the number of Semaphores.
 	 * @return the number of semaphores
 	 */
-	public int getNumberOfSemaphores(){
+	public int getNumberOfSemaphores() throws RemoteException{
 		if(semaphoreList != null)
 			return semaphoreList.size();
 		else
@@ -239,7 +239,7 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 	 * @param offset a given offset
 	 * @return a seat number 
 	 */
-	private int getOffsetSeat(int seat, int offset){
+	private int getOffsetSeat(int seat, int offset) throws RemoteException{
 		return ((seat+offset)%getNumberOfSeats());
 	}
 

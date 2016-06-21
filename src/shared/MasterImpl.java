@@ -43,6 +43,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 	 */
 	public void run(){
 		while(true) {
+			checkPhils();
 			checkTables();
 			try {
 				Thread.sleep(500);
@@ -87,6 +88,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 			philBanned.put(phil.getID(), phil.getBanned());
 			philosophers.put(phil.getID(), phil);
 			philLastupdate.put(phil.getID(), System.currentTimeMillis());
+			philosopherTable.put(phil.getID(), table);
 		}
 	}
 
@@ -105,13 +107,27 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 					updateTable(tableList.get(i));
 					seatHelper.setTable(tableList.get(i));
 				} catch (RemoteException e) {
-					e.printStackTrace();
 					restartTable(tableList.get(i));
 				}
 			}
 
 		}
 
+	}
+	
+	private void checkPhils() {
+		for (int i = 0; i < philIds.size(); i++) {
+			for (int checked = 0; checked < philEaten.size(); checked++) {
+				if ((philEaten.get(philIds.get(i)) - MAX_EAT_MORE) > philEaten
+						.get(philIds.get(checked))) {
+					try {
+						philosophers.get(philIds.get(i)).ban();
+					} catch (RemoteException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
 	}
 
 	@Override
@@ -135,7 +151,9 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
      */
 	private  void restartPhil(String philId){
 		try {
-			tableList.get(0).recreatePhilosopher(philHunger.get(philId), philId, philEaten.get(philId), philBanned.get(philId));
+			System.out.println("TRYYY " + philId);
+			seatHelper.getTable().recreatePhilosopher(philHunger.get(philId), philId, philEaten.get(philId), philBanned.get(philId));
+			System.out.println("AFTER TRYY");
 		} catch (RemoteException e) {
 			restartTable(tableList.get(0));
 			restartPhil(philId);
@@ -147,33 +165,35 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 	 * @param table
      */
 	private void restartTable(Table table) {
-		if(table==null){
+		if (table == null) {
 			System.out.println("given table was null");
-		}else{
-		if(tableList.size()>1){
-			try {
-				seatHelper.addSeat(tableSeats.get(tableList.get(lastTestedTable)));
-				List<Philosopher> philList = new ArrayList<>();
-				for (int i=0; i<philosopherTable.size(); i++){
-					if(philosopherTable.get(philIds.get(i)).equals(table)){
-						philList.add(philosophers.get(philIds.get(i)));
-					}
-				}
-				removeTable(table);
-				for(Philosopher phil : philList){
-					restartPhil(phil.getID());
-					for(Table checkedTable : tableList){
-						if(checkedTable.checkFirstFork(phil)){
-							checkedTable.reLeaseFirstFork(phil);
+		} else {
+			if (tableList.size() > 1) {
+				try {
+					seatHelper.addSeat(tableSeats.get(tableList
+							.get(lastTestedTable)));
+					List<Philosopher> philList = new ArrayList<>();
+					for (int i = 0; i < philosopherTable.size(); i++) {
+						if (philosopherTable.get(philIds.get(i)).equals(table)) {
+							philList.add(philosophers.get(philIds.get(i)));
 						}
 					}
+					removeTable(table);
+					for (Philosopher phil : philList) {
+						restartPhil(phil.getID());
+						for (Table checkedTable : tableList) {
+							if (checkedTable.checkFirstFork(phil)) {
+								checkedTable.reLeaseFirstFork(phil);
+							}
+						}
+					}
+				} catch (RemoteException e) {
+					e.printStackTrace();
 				}
-			} catch (RemoteException e) {
-				e.printStackTrace();
+			} else {
+				System.out.println("all tables are dead, restart System;");
 			}
-		} else {
-			System.out.println("all tables are dead, restart System;");
-		}}
+		}
 	}
 
 	@Override

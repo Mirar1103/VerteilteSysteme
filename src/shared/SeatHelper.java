@@ -54,5 +54,9 @@ public class SeatHelper {
     public void setTable(Table table){
     	this.table = table;
     }
+    
+    public Table getTable(){
+    	return this.table;
+    }
 }
 

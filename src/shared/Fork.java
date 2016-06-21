@@ -33,5 +33,5 @@ public interface Fork extends Remote {
      */
 	public void drop()throws RemoteException;
 
-	public Philosopher getOwner();
+	public Philosopher getOwner() throws RemoteException;
 }

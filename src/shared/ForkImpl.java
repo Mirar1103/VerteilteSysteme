@@ -35,7 +35,7 @@ public class ForkImpl extends UnicastRemoteObject implements Fork{
 	 * Checks if the fork has an owner.
 	 * @return true if it has an owner
 	 */
-	public boolean hasOwner(){
+	public boolean hasOwner() throws RemoteException{
 		if(this.owner != null)
 			return true;
 		return false;
@@ -46,7 +46,7 @@ public class ForkImpl extends UnicastRemoteObject implements Fork{
 	 * @param owner the philosopher
 	 * @return true if successfull
 	 */
-	public boolean pickUpFork(Philosopher owner){
+	public boolean pickUpFork(Philosopher owner) throws RemoteException{
 		boolean picked = false;
 
 		try{
@@ -66,7 +66,7 @@ public class ForkImpl extends UnicastRemoteObject implements Fork{
 	/**
 	 * Drops this fork.
 	 */
-	public void drop(){
+	public void drop() throws RemoteException{
 		try{
 			lock.lock();
 			owner = null;
@@ -76,7 +76,7 @@ public class ForkImpl extends UnicastRemoteObject implements Fork{
 	}
 
 	@Override
-	public Philosopher getOwner() {
+	public Philosopher getOwner() throws RemoteException{
 		return owner;
 	}
 }
