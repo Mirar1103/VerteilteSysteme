@@ -1,16 +1,13 @@
 package shared;
 
-import java.io.Serializable;
-import java.net.UnknownHostException;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import shared.Philosopher;
 
 /**
  * Created by Maximilian on 10.06.2016.
@@ -27,8 +24,8 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 	private Map<String, Boolean> philBanned = new HashMap<>();
 	private Map<String, Philosopher> philosophers = new HashMap<>();
 	private Map<String, Long> philLastupdate = new HashMap<>();
+	private Map<String, Table> philosopherTable = new HashMap<>();
 	private SeatHelper seatHelper = new SeatHelper(null);
-	private Map<Table, List<Philosopher>> philsAtTable = new HashMap<>();
 	private int lastTestedTable;
 
 	private final static long TIMEOUT = 2000;
@@ -47,7 +44,6 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 	public void run(){
 		while(true) {
 			checkTables();
-			//checkPhils();
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
@@ -74,20 +70,16 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 
     }
 
-/*
-	@Override
-	public void registerSeatHelper(SeatHelper seatHelper) throws RemoteException {
-		this.seatHelper = seatHelper;
-	}*/
 
 	@Override
-	public void updatePhilosopher(Philosopher phil)throws RemoteException{
+	public void updatePhilosopher(Philosopher phil, Table table)throws RemoteException{
 		if(philIds.contains(phil.getID())){
 			philEaten.replace(phil.getID(), phil.getTotalEatenRounds());
 			philHunger.replace(phil.getID(), phil.getHunger());
 			philBanned.replace(phil.getID(), phil.getBanned());
 			philosophers.replace(phil.getID(), phil);
 			philLastupdate.replace(phil.getID(), System.currentTimeMillis());
+			philosopherTable.replace(phil.getID(), table);
 		} else {
 			philIds.add(phil.getID());
 			philEaten.put(phil.getID(), phil.getTotalEatenRounds());
@@ -96,39 +88,6 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 			philosophers.put(phil.getID(), phil);
 			philLastupdate.put(phil.getID(), System.currentTimeMillis());
 		}
-	}
-
-	/**
-	 * goes through the list of tracked philosophers and checks if they are upto date and/or reachable.
-	 */
-	private void checkPhils(){
-		for (int i =0; i<philIds.size(); i++){
-			while(philLastupdate.get(philIds.get(i))==null){
-				//System.out.println("waiting for first update on Philosopher#"+philIds.get(i));
-			}
-			if(System.currentTimeMillis()-philLastupdate.get(philIds.get(i))>TIMEOUT){
-				try {
-					System.out.println("CHEEEEECKKK");
-					updatePhilosopher(philosophers.get(philIds.get(i)));
-				} catch (RemoteException e) {
-					System.out.println("EXCEPTION RECREATE");
-					restartPhil(philIds.get(i));
-				}
-			}
-			for (int checked =0; checked<philEaten.size(); checked++){
-				if(
-						(philEaten.get(philIds.get(i))-MAX_EAT_MORE)>philEaten.get(philIds.get(checked))
-						){
-					try {
-						philosophers.get(philIds.get(i)).ban();
-					} catch (RemoteException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-
-		}
-
 	}
 
 	/**
@@ -146,6 +105,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 					updateTable(tableList.get(i));
 					seatHelper.setTable(tableList.get(i));
 				} catch (RemoteException e) {
+					e.printStackTrace();
 					restartTable(tableList.get(i));
 				}
 			}
@@ -160,13 +120,11 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 			tableSeats.replace(table, table.getNumberOfSeats());
 			tableSemaphores.replace(table, table.getNumberOfSemaphores());
 			tableNextTable.replace(table, table.getNextTable());
-			philsAtTable.replace(table, table.getPhilosophers());
 			tableLastUpdate.replace(table, System.currentTimeMillis());
 		}else{
 			tableSeats.put(table, table.getNumberOfSeats());
 			tableSemaphores.put(table, table.getNumberOfSemaphores());
 			tableNextTable.put(table, table.getNextTable());
-			philsAtTable.put(table, table.getPhilosophers());
 			tableLastUpdate.put(table, System.currentTimeMillis());
 		}
 	}
@@ -191,20 +149,31 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 	private void restartTable(Table table) {
 		if(table==null){
 			System.out.println("given table was null");
-		}
+		}else{
 		if(tableList.size()>1){
 			try {
 				seatHelper.addSeat(tableSeats.get(tableList.get(lastTestedTable)));
-				for(Philosopher phil : philsAtTable.get(tableList.get(lastTestedTable))){
-					tableList.get(0).recreatePhilosopher(phil.getHunger(), phil.getID(), phil.getTotalEatenRounds(), phil.getBanned());
+				List<Philosopher> philList = new ArrayList<>();
+				for (int i=0; i<philosopherTable.size(); i++){
+					if(philosopherTable.get(philIds.get(i)).equals(table)){
+						philList.add(philosophers.get(philIds.get(i)));
+					}
 				}
 				removeTable(table);
+				for(Philosopher phil : philList){
+					restartPhil(phil.getID());
+					for(Table checkedTable : tableList){
+						if(checkedTable.checkFirstFork(phil)){
+							checkedTable.reLeaseFirstFork(phil);
+						}
+					}
+				}
 			} catch (RemoteException e) {
 				e.printStackTrace();
 			}
 		} else {
 			System.out.println("all tables are dead, restart System;");
-		}
+		}}
 	}
 
 	@Override
@@ -215,6 +184,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 		philEaten.remove(phil.getID());
 		philosophers.remove(phil.getID());
 		philLastupdate.remove(phil.getID());
+		philosopherTable.remove(phil.getID());
 	}
 
 	@Override
@@ -224,7 +194,6 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 		tableSemaphores.remove(table);
 		tableSeats.remove(table);
 		tableList.remove(table);
-
 	}
 	
 	public void printResult() throws RemoteException{

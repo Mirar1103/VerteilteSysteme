@@ -42,7 +42,7 @@ public interface Master extends Remote{
 	 * @param phil
 	 * @throws RemoteException
      */
-	void updatePhilosopher(Philosopher phil)throws RemoteException;
+	void updatePhilosopher(Philosopher phil, Table table)throws RemoteException;
 
 	/**
 	 * updates the backup-data on the given table.
