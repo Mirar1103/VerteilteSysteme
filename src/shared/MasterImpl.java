@@ -180,6 +180,10 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 						}
 					}
 					removeTable(table);
+					if(tableList.size()==1){
+							tableList.get(0).setNextTable(tableList.get(0));
+
+					}
 					for (Philosopher phil : philList) {
 						restartPhil(phil.getID());
 						for (Table checkedTable : tableList) {
@@ -190,13 +194,6 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 					}
 				} catch (RemoteException e) {
 					e.printStackTrace();
-				}
-				if(tableList.size()==1){
-					try {
-						tableList.get(0).setNextTable(tableList.get(0));
-					} catch (RemoteException e) {
-						e.printStackTrace();
-					}
 				}
 			} else {
 				System.out.println("all tables are dead, restart System;");
