@@ -175,7 +175,7 @@ public class MasterImpl extends UnicastRemoteObject implements Master, Runnable{
 						seatHelper.getTable().setNextTable(seatHelper.getTable());
 					}else {
 						try {
-							seatHelper.getTable().setNextTable(table.getNextTable());
+							seatHelper.getTable().setNextTable(tableNextTable.get(tableList.get(lastTestedTable)));
 						} catch (RemoteException e) {
 							System.out.print("next table also failed");
 						}
