@@ -208,7 +208,11 @@ public class TableImpl extends UnicastRemoteObject implements Table, Serializabl
 		if(fork < forkList.size())
 			forkList.get(fork).drop();
 		else
+		try {
 			getNextTable().dropFork(0);
+		}catch (RemoteException e){
+			System.out.println("That fork's table became unreachable");
+		}
 	}
 	
 	/**
